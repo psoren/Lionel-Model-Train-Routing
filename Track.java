@@ -1,25 +1,26 @@
 import java.io.*;
 import javafx.beans.property.*;
-import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
+import javafx.collections.*;
+import javafx.geometry.*;
+import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+//Things to add: 
+//When the user drags some connected pieces around, move them around together
+
 public abstract class Track extends StackPane{
 
 	/**Static fields**/
 	//This is a static field that is set whenever a track is selected
 	public static Track selected;
-
-	private String selectedStyle = "-fx-border-color: black; -fx-border-width: 2;";
-	private String unselectedStyle = "-fx-border-style: none";
-	private String sameOrientationStyle = "-fx-border-color: green";
-	private String differentOrientationStyle = "-fx-border-color: red";
+	private static String selectedStyle = "-fx-border-color: black; -fx-border-width: 2;";
+	private static String unselectedStyle = "-fx-border-style: none";
+	private static String sameOrientationStyle = "-fx-border-color: green";
+	private static String differentOrientationStyle = "-fx-border-color: red";
 
 	/**Non-static fields**/
 	//The type of track that this track is
@@ -42,6 +43,9 @@ public abstract class Track extends StackPane{
 
 	//If this track is "locked onto" another track
 	private boolean locked;
+
+	//The context menu for this track
+	private ContextMenu contextMenu;
 
 	/**
 	 * @param x: the x coordinate of the image
@@ -67,7 +71,7 @@ public abstract class Track extends StackPane{
 		this.setLayoutY(y);
 
 		this.addEventHandler(MouseEvent.MOUSE_PRESSED, e ->{
-
+			
 			//Unselect the previous track
 			if(Track.selected != null){
 				selected.setStyle(unselectedStyle);
@@ -84,19 +88,22 @@ public abstract class Track extends StackPane{
 		});
 
 		//Context menu stuff
-		ContextMenu contextMenu = new ContextMenu();
+		this.contextMenu = new ContextMenu();
 
 		MenuItem rotateCW = new MenuItem("Rotate Clockwise");
-		rotateCW.setOnAction(e->{
-			this.rotateCW();
-		});
+		rotateCW.setOnAction(e-> this.rotateCW());
+		rotateCW.setId("RotCW");
 
 		MenuItem rotateCCW = new MenuItem("Rotate Counter-clockwise");
-		rotateCCW.setOnAction(e->{
-			this.rotateCCW();
-		});
+		rotateCCW.setOnAction(e-> this.rotateCCW());
+		rotateCCW.setId("RotCCW");
 
-		contextMenu.getItems().addAll(rotateCW, rotateCCW);
+		MenuItem disconnectTrack = new MenuItem("Disconnect Track");
+		disconnectTrack.setOnAction(e-> this.disconnect());
+		disconnectTrack.setId("disconnect");
+
+		contextMenu.getItems().addAll(rotateCW, rotateCCW, disconnectTrack);
+		disconnectTrack.setDisable(true);
 
 		this.setOnContextMenuRequested(e-> {
 			contextMenu.show(this, e.getScreenX(), e.getScreenY());
@@ -140,6 +147,9 @@ public abstract class Track extends StackPane{
 						this.locked = true;
 						t.locked = true;
 
+						this.enableDisconnectTrack();
+						t.enableDisconnectTrack();
+						
 						this.frontTrack = t;
 						t.backTrack = this;
 						this.highlightTracks();
@@ -154,10 +164,14 @@ public abstract class Track extends StackPane{
 
 						this.locked = true;
 						t.locked = true;
+						
+						this.enableDisconnectTrack();
+						t.enableDisconnectTrack();
 
 						this.backTrack = t;
 						t.frontTrack = this;
 						this.highlightTracks();
+						this.enableDisconnectTrack();
 						break;
 					}
 				}
@@ -256,6 +270,16 @@ public abstract class Track extends StackPane{
 		this.highlightTracks();
 	}
 
+	//This method is called whenever the user wants to disconnect the selected
+	//track from some other track
+	private void disconnect(){
+		this.disableDisconnectTrack();
+		this.unlockConnectedTracks();
+		this.locked = false;
+		this.setLayoutX(this.getLayoutX() + 100);
+		this.setLayoutY(this.getLayoutY() - 100);
+	}
+
 	//This method is called when this track is deleted
 	//in order to unlock the tracks that were connected to the now-deleted track
 	public void unlockConnectedTracks(){
@@ -265,12 +289,50 @@ public abstract class Track extends StackPane{
 		//This track is now isolated, unlock it
 		if(fTrack != null && fTrack.frontTrack == null){
 			fTrack.locked = false;
+			fTrack.disableDisconnectTrack();
 		}
 
 		//This track is now isolated, unlock it
 		if(bTrack != null && bTrack.backTrack == null){
 			bTrack.locked = false;
+			bTrack.disableDisconnectTrack();
 		}
+	}
+
+	//Disable the disconnectTrack option in this track's contextMenu
+	private void disableDisconnectTrack(){
+		ObservableList<MenuItem> list = this.contextMenu.getItems();
+		for(int i = 0; i < list.size(); i++){
+			MenuItem item = list.get(i);
+			if(item.getId().equals("disconnect")){
+				item.setDisable(true);
+			}	
+		}	
+	}
+
+	//Enable the disconnectTrack option in this track's contextMenu
+	private void enableDisconnectTrack(){
+		ObservableList<MenuItem> list = this.contextMenu.getItems();
+		for(int i = 0; i < list.size(); i++){
+			MenuItem item = list.get(i);
+			if(item.getId().equals("disconnect")){
+				item.setDisable(false);
+			}	
+		}	
+	}
+	
+	//When the user clicks the layoutArea, this method is called
+	public static void layoutAreaClicked(Point2D p){
+		for(Track t: TrainsGUI.tracks){
+			if(t.contains(t.parentToLocal(p))){
+				return;
+			}
+		}
+		//if click not on top of track
+		if(Track.selected != null){
+			Track.selected.setStyle(unselectedStyle);
+			Track.selected = null;
+		}	
 	}
 
 	//The following methods get the coordinates of the track in the parent coordinate system

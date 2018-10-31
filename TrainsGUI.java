@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.*;
 import javafx.application.*;
+import javafx.geometry.Point2D;
 import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.image.*;
@@ -37,6 +38,11 @@ public class TrainsGUI extends Application{
 
 		//group.getChildren().addAll(tracks);
 		Pane trackLayoutArea = new Pane(group);
+		
+		trackLayoutArea.setOnMouseClicked(e->{
+				Track.layoutAreaClicked(new Point2D(e.getX(), e.getY()));
+		});
+		
 		trackLayoutArea.setPrefHeight(LAYOUT_AREA_HEIGHT);
 		trackLayoutArea.setPrefWidth(LAYOUT_AREA_WIDTH);
 		/****************************************/
