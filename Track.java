@@ -90,7 +90,11 @@ public abstract class Track extends StackPane{
 	private void enableDragging(Track track){
 		if(!this.locked){
 			final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
-			this.setOnMousePressed(e -> mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY())));
+			this.setOnMousePressed(e -> {
+				mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
+				System.out.println("in parent coordinates: x: " + this.getFrontLeft().getX() + " y: "+ this.getFrontLeft().getY());
+				System.out.println("in local coordinates: x:" + this.getLayoutX() + " y: " + this.getLayoutY() + "\n\n");			
+			});
 			this.setOnMouseDragged(e ->{
 				double deltaX = e.getSceneX() - mouseAnchor.get().getX();
 				double deltaY = e.getSceneY() - mouseAnchor.get().getY();
@@ -98,23 +102,31 @@ public abstract class Track extends StackPane{
 				mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
 
 				//The "snap-to" behavior
-				//Need to figure out how to select the "top-most" track
 				for(Track t: TrainsGUI.tracks){
 
 					//Setting the position of the selected track to be
 					//"at the end" of the other track that is close
-					if(distanceBetweenThisTopAndOtherBottom(t) < 60){
-						
-						//have to do conversions between local and parent here
-						//I don't think its too confusing but i need to get it right
-						
-						Point2D p = this.localToParent(0,0);
+					if(this.distanceBetweenThisTopAndOtherBottom(t) < 60){
 
-						p.add(t.localToParent(0,0));
-						this.setLayoutX(t.getBackRight().getX());
-						//this.setLayoutX(t.getBackRight().getX() - this.getWidth());
-						this.setLayoutY(t.getBackRight().getY());
+						//getFrontLeft(), etc are returning the position in the parent coordinates
+						//so we need to set the position of the track in the parent coordinates
+
+						//Set the location of the track
+						//This is somewhat complicated because we have to account
+						//for the different coordinate systems of the main canvas 
+						//and each track
+						this.setLayoutX(t.getBackLeft().getX() - (this.getFrontLeft().getX() - this.getLayoutX()));
+						this.setLayoutY(t.getBackLeft().getY() - (this.getFrontLeft().getY() - this.getLayoutY()));
 						
+
+
+						
+						
+
+					
+
+
+
 						this.locked = true;
 						t.locked = true;
 
@@ -152,17 +164,19 @@ public abstract class Track extends StackPane{
 
 	//returns the distance between the top of this track
 	//and the bottom of the other one
-	private int distanceBetweenThisBottomAndOtherTop(Track track){
-		
+	/*
+	 private int distanceBetweenThisBottomAndOtherTop(Track track){
+
 		int x1 = (int)this.getBackLeft().getX();
 		int x2 = (int)track.getFrontLeft().getX();
 
 		int y1 = (int)this.getBackLeft().getY();
 		int y2 = (int)track.getFrontLeft().getY();
-		
+
 		//The distance between this track and the bottom of the other track
 		return (int)Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2),2));
 	}
+	 */
 
 	//A function to check if the orientations of the tracks are matching
 	//simplify this method
