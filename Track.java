@@ -12,9 +12,16 @@ import javafx.scene.shape.Rectangle;
 
 public abstract class Track extends StackPane{
 
+	/**Static fields**/
 	//This is a static field that is set whenever a track is selected
 	public static Track selected;
 
+	private String selectedStyle = "-fx-border-color: black; -fx-border-width: 2;";
+	private String unselectedStyle = "-fx-border-style: none";
+	private String sameOrientationStyle = "-fx-border-color: green";
+	private String differentOrientationStyle = "-fx-border-color: red";
+
+	/**Non-static fields**/
 	//The type of track that this track is
 	protected String type;
 
@@ -60,11 +67,20 @@ public abstract class Track extends StackPane{
 		this.setLayoutY(y);
 
 		this.addEventHandler(MouseEvent.MOUSE_PRESSED, e ->{
+
+			//Unselect the previous track
 			if(Track.selected != null){
-				selected.setStyle("-fx-border-style: none");
+				selected.setStyle(unselectedStyle);
 			}
-			Track.selected = this;
-			Track.selected.setStyle("-fx-border-color: black");
+
+			//If the track is already selected, unselect it
+			if(Track.selected == this){
+				Track.selected = null;
+			}
+			else{
+				Track.selected = this;
+				Track.selected.setStyle(selectedStyle);
+			}
 		});
 
 		//Context menu stuff
@@ -88,57 +104,68 @@ public abstract class Track extends StackPane{
 	}
 
 	private void enableDragging(Track track){
-		if(!this.locked){
-			final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
-			this.setOnMousePressed(e -> {
-				mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
-				System.out.println("in parent coordinates: x: " + this.getFrontLeft().getX() + " y: "+ this.getFrontLeft().getY());
-				System.out.println("in local coordinates: x:" + this.getLayoutX() + " y: " + this.getLayoutY() + "\n\n");			
-			});
-			this.setOnMouseDragged(e ->{
-				double deltaX = e.getSceneX() - mouseAnchor.get().getX();
-				double deltaY = e.getSceneY() - mouseAnchor.get().getY();
-				this.relocate(this.getLayoutX() + deltaX, this.getLayoutY() + deltaY);
-				mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
+		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
+		this.setOnMousePressed(e -> {
+			mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
+		});
+		this.setOnMouseDragged(e -> {
+			double deltaX = e.getSceneX() - mouseAnchor.get().getX();
+			double deltaY = e.getSceneY() - mouseAnchor.get().getY();
+			this.relocate(this.getLayoutX() + deltaX, this.getLayoutY() + deltaY);
+			mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
 
-				//The "snap-to" behavior
-				for(Track t: TrainsGUI.tracks){
+			//The "snap-to" behavior
+			for(Track t: TrainsGUI.tracks){
 
-					//Setting the position of the selected track to be
-					//"at the end" of the other track that is close
-					if(this.distanceBetweenThisTopAndOtherBottom(t) < 60){
-						//Set the location of the track
-						//This is somewhat complicated because we have to account
-						//for the different coordinate systems of the main canvas 
-						//and each track
+				//Setting the position of the selected track to be
+				//"at the end" of the other track that is close
+				if(this.distanceBetweenThisTopAndOtherBottom(t) < 40){
+					//Set the location of the track
+					//This is somewhat complicated because we have to account
+					//for the different coordinate systems of the main canvas 
+					//and each track
+
+					//if the orientations match and the track to be connected to
+					//does not have backTrack, snap them together
+
+
+					//Figure out how to ensure that you cant snap a track
+					//to a place that already has a track connected to it
+					if(this.frontOrientation == t.frontOrientation){
+
+						//we dont want to have two tracks connected to the same place
 						this.setLayoutX(this.getLayoutX() + t.getBackLeft().getX() - this.getFrontLeft().getX());
 						this.setLayoutY(this.getLayoutY() + t.getBackLeft().getY() - this.getFrontLeft().getY());
-						
+
 						this.locked = true;
 						t.locked = true;
 
 						this.frontTrack = t;
-						this.checkIfOrientationsMatch();
+						t.backTrack = this;
+						this.highlightTracks();
 						break;
-					}
-					else if(this.distanceBetweenThisBottomAndOtherTop(t) < 60){
-						
+					}	
+				}
+				else if(this.distanceBetweenThisBottomAndOtherTop(t) < 40){
+					//if the orientations match, snap them together
+					if(this.frontOrientation == t.frontOrientation){
 						this.setLayoutX(this.getLayoutX() + t.getFrontLeft().getX() - this.getBackLeft().getX());
 						this.setLayoutY(this.getLayoutY() + t.getFrontLeft().getY() - this.getBackLeft().getY());
-							
+
 						this.locked = true;
 						t.locked = true;
 
 						this.backTrack = t;
-						this.checkIfOrientationsMatch();
+						t.frontTrack = this;
+						this.highlightTracks();
 						break;
 					}
 				}
-			});
-		}
+			}
+		});
 	}
 
-	//returns the distance between the top of this track
+	//Returns the distance between the top of this track
 	//and the bottom of the other one
 	private int distanceBetweenThisTopAndOtherBottom(Track track){
 		int x1 = (int)this.getFrontLeft().getX();
@@ -151,10 +178,9 @@ public abstract class Track extends StackPane{
 		return (int)Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2),2));
 	}
 
-	//returns the distance between the top of this track
+	//Returns the distance between the top of this track
 	//and the bottom of the other one
-	 private int distanceBetweenThisBottomAndOtherTop(Track track){
-
+	private int distanceBetweenThisBottomAndOtherTop(Track track){
 		int x1 = (int)this.getBackLeft().getX();
 		int x2 = (int)track.getFrontLeft().getX();
 
@@ -165,47 +191,39 @@ public abstract class Track extends StackPane{
 		return (int)Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2),2));
 	}
 
-	//A function to check if the orientations of the tracks are matching
-	//simplify this method
-	private void checkIfOrientationsMatch(){
+	//A way to highlight the tracks based on their orientation
+	private void highlightTracks(){
+		//loop through the frontTrack list
+		Track fTrack = this.frontTrack;
+		while(fTrack != null){
 
-		//go through the pointer list of all of the connected tracks and 
-		//highlight them if their orientations match
-
-		if(this.backTrack == null && this.frontTrack != null){
-			if(this.frontOrientation == this.frontTrack.frontOrientation){
-				this.setStyle("-fx-border-color: green");
-				this.frontTrack.setStyle("-fx-border-color: green");
+			//if their orientations match, make them green
+			if(fTrack.frontOrientation == this.frontOrientation){
+				this.setStyle(sameOrientationStyle);
+				fTrack.setStyle(sameOrientationStyle);
 			}
+			//Otherwise, make them red
 			else{
-				this.setStyle("-fx-border-color: red");
-				this.frontTrack.setStyle("-fx-border-color: red");
+				this.setStyle(differentOrientationStyle);
+				fTrack.setStyle(differentOrientationStyle);
 			}
+			fTrack = fTrack.frontTrack;
 		}
 
-		else if(this.frontTrack == null && this.backTrack != null){
-			if(this.frontOrientation == this.backTrack.frontOrientation){
-				this.setStyle("-fx-border-color: green");
-				this.backTrack.setStyle("-fx-border-color: green");
+		//loop through the backTrack list
+		Track bTrack = this.backTrack;
+		while(bTrack != null){
+			//if their orientations match, make them green
+			if(bTrack.frontOrientation == this.frontOrientation){
+				this.setStyle(sameOrientationStyle);
+				bTrack.setStyle(sameOrientationStyle);
 			}
+			//Otherwise, make them red
 			else{
-				this.setStyle("-fx-border-color: red");
-				this.backTrack.setStyle("-fx-border-color: red");
+				this.setStyle(differentOrientationStyle);
+				bTrack.setStyle(differentOrientationStyle);
 			}
-		}
-
-		else if(this.frontTrack != null && this.backTrack != null){
-			if(this.frontOrientation == this.backTrack.frontOrientation &&
-					this.frontOrientation == this.frontTrack.frontOrientation){
-				this.setStyle("-fx-border-color: green");
-				this.frontTrack.setStyle("-fx-border-color: green");
-				this.backTrack.setStyle("-fx-border-color: green");
-			}
-			else{
-				this.setStyle("-fx-border-color: red");
-				this.frontTrack.setStyle("-fx-border-color: red");
-				this.backTrack.setStyle("-fx-border-color: red");
-			}
+			bTrack = bTrack.frontTrack;
 		}
 	}
 
@@ -220,9 +238,8 @@ public abstract class Track extends StackPane{
 		if(this.frontOrientation == 360){
 			this.frontOrientation = 0;
 		}
-
 		this.setRotate(this.frontOrientation);
-		this.checkIfOrientationsMatch();
+		this.highlightTracks();
 	}
 
 	//Rotate the track's image by 360/numRotations degrees counter-clockwise
@@ -236,10 +253,27 @@ public abstract class Track extends StackPane{
 			this.frontOrientation = 0;
 		}
 		this.setRotate(this.frontOrientation);
-		this.checkIfOrientationsMatch();
+		this.highlightTracks();
 	}
 
-	//A method to calculate the coordinates of the rotated rectangle
+	//This method is called when this track is deleted
+	//in order to unlock the tracks that were connected to the now-deleted track
+	public void unlockConnectedTracks(){
+		Track fTrack = this.frontTrack;
+		Track bTrack = this.backTrack;
+
+		//This track is now isolated, unlock it
+		if(fTrack != null && fTrack.frontTrack == null){
+			fTrack.locked = false;
+		}
+
+		//This track is now isolated, unlock it
+		if(bTrack != null && bTrack.backTrack == null){
+			bTrack.locked = false;
+		}
+	}
+
+	//The following methods get the coordinates of the track in the parent coordinate system
 	private Point2D getFrontLeft(){
 		return this.localToParent(0,0);
 	}
@@ -255,5 +289,4 @@ public abstract class Track extends StackPane{
 	private Point2D getBackRight(){
 		return this.localToParent((int)this.getWidth(), this.getHeight());
 	}
-
 }

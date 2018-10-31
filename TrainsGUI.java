@@ -148,6 +148,7 @@ public class TrainsGUI extends Application{
 		Button removeButton = new Button("Remove Track");
 		removeButton.setOnAction(e->{
 			if(tracks.size() >= 1 && Track.selected != null){
+				Track.selected.unlockConnectedTracks();
 				tracks.remove(Track.selected);				
 				trackLayoutArea.getChildren().clear();
 				trackLayoutArea.getChildren().addAll(tracks);
