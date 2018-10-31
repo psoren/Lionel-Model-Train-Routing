@@ -107,26 +107,13 @@ public abstract class Track extends StackPane{
 					//Setting the position of the selected track to be
 					//"at the end" of the other track that is close
 					if(this.distanceBetweenThisTopAndOtherBottom(t) < 60){
-
-						//getFrontLeft(), etc are returning the position in the parent coordinates
-						//so we need to set the position of the track in the parent coordinates
-
 						//Set the location of the track
 						//This is somewhat complicated because we have to account
 						//for the different coordinate systems of the main canvas 
 						//and each track
-						this.setLayoutX(t.getBackLeft().getX() - (this.getFrontLeft().getX() - this.getLayoutX()));
-						this.setLayoutY(t.getBackLeft().getY() - (this.getFrontLeft().getY() - this.getLayoutY()));
+						this.setLayoutX(this.getLayoutX() + t.getBackLeft().getX() - this.getFrontLeft().getX());
+						this.setLayoutY(this.getLayoutY() + t.getBackLeft().getY() - this.getFrontLeft().getY());
 						
-
-
-						
-						
-
-					
-
-
-
 						this.locked = true;
 						t.locked = true;
 
@@ -134,16 +121,18 @@ public abstract class Track extends StackPane{
 						this.checkIfOrientationsMatch();
 						break;
 					}
-					/*else if(distanceBetweenThisBottomAndOtherTop(t) < 60){
-						this.setLayoutX(t.getLayoutX());
-						this.setLayoutY(t.getLayoutY() - t.getHeight());
+					else if(this.distanceBetweenThisBottomAndOtherTop(t) < 60){
+						
+						this.setLayoutX(this.getLayoutX() + t.getFrontLeft().getX() - this.getBackLeft().getX());
+						this.setLayoutY(this.getLayoutY() + t.getFrontLeft().getY() - this.getBackLeft().getY());
+							
 						this.locked = true;
 						t.locked = true;
 
 						this.backTrack = t;
 						this.checkIfOrientationsMatch();
 						break;
-					}*/
+					}
 				}
 			});
 		}
@@ -164,7 +153,6 @@ public abstract class Track extends StackPane{
 
 	//returns the distance between the top of this track
 	//and the bottom of the other one
-	/*
 	 private int distanceBetweenThisBottomAndOtherTop(Track track){
 
 		int x1 = (int)this.getBackLeft().getX();
@@ -176,7 +164,6 @@ public abstract class Track extends StackPane{
 		//The distance between this track and the bottom of the other track
 		return (int)Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2),2));
 	}
-	 */
 
 	//A function to check if the orientations of the tracks are matching
 	//simplify this method
