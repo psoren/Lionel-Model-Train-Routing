@@ -3,7 +3,8 @@ import java.util.*;
 import javafx.application.*;
 import javafx.geometry.Point2D;
 import javafx.scene.*;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
@@ -16,9 +17,10 @@ public class TrainsGUI extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception{
 
+		
 		/************Constants***********/
 		final double PROGRAM_HEIGHT = 600;
-		final double PROGRAM_WIDTH = 1000;
+		final double PROGRAM_WIDTH = 1200;
 
 		final double SELECTION_AREA_HEIGHT = PROGRAM_HEIGHT;
 		final double SELECTION_AREA_WIDTH = (int)0.2*PROGRAM_WIDTH;
@@ -29,7 +31,10 @@ public class TrainsGUI extends Application{
 		final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
 		final String STRAIGHT_IMG = "straight.png";
 		final String SENSOR_IMG = "sensor.png";
+		final String SWITCHRIGHT_IMG = "switchRight.png";
 		final String SWITCHLEFT_IMG = "switchLeft.png";
+		final String CURVERIGHT_IMG = "curveRight.png";
+		final String CURVELEFT_IMG = "curveLeft.png";
 		/****************************************/
 
 
@@ -51,18 +56,33 @@ public class TrainsGUI extends Application{
 		/************Track Selection Area***********/
 		Image straight = new Image(new FileInputStream(BASE + STRAIGHT_IMG));
 		ImageView straightImgVw = new ImageView(straight);
-		straightImgVw.setFitHeight(100);
-		straightImgVw.setFitWidth(50);
+		straightImgVw.setFitHeight(50);
+		straightImgVw.setFitWidth(100);
 
 		Image sensor = new Image(new FileInputStream(BASE + SENSOR_IMG));
 		ImageView sensorImgVw = new ImageView(sensor);
-		sensorImgVw.setFitHeight(50);
-		sensorImgVw.setFitWidth(55);
+		sensorImgVw.setFitHeight(55);
+		sensorImgVw.setFitWidth(50);
+		
+		Image switchRight = new Image(new FileInputStream(BASE + SWITCHRIGHT_IMG));
+		ImageView switchRightVw = new ImageView(switchRight);
+		switchRightVw.setFitHeight(60);
+		switchRightVw.setFitWidth(100);
 		
 		Image switchLeft = new Image(new FileInputStream(BASE + SWITCHLEFT_IMG));
 		ImageView switchLeftVw = new ImageView(switchLeft);
 		switchLeftVw.setFitHeight(60);
 		switchLeftVw.setFitWidth(100);
+			
+		Image curveRight = new Image(new FileInputStream(BASE + CURVERIGHT_IMG));
+		ImageView curveRightVw = new ImageView(curveRight);
+		curveRightVw.setFitHeight(60);
+		curveRightVw.setFitWidth(100);
+		
+		Image curveLeft = new Image(new FileInputStream(BASE + CURVELEFT_IMG));
+		ImageView curveLeftVw = new ImageView(curveLeft);
+		curveLeftVw.setFitHeight(60);
+		curveLeftVw.setFitWidth(100);
 		/****************************************/
 
 
@@ -86,11 +106,38 @@ public class TrainsGUI extends Application{
 			e.consume();
 		});
 		
+		switchRightVw.setOnDragDetected(e->{
+			Dragboard db = switchRightVw.startDragAndDrop(TransferMode.ANY);
+			ClipboardContent content = new ClipboardContent();
+			content.putImage(switchRight);
+			content.putString("switchRight");
+			db.setContent(content);
+			e.consume();
+		});
+		
 		switchLeftVw.setOnDragDetected(e->{
 			Dragboard db = switchLeftVw.startDragAndDrop(TransferMode.ANY);
 			ClipboardContent content = new ClipboardContent();
 			content.putImage(switchLeft);
 			content.putString("switchLeft");
+			db.setContent(content);
+			e.consume();
+		});
+		
+		curveRightVw.setOnDragDetected(e->{
+			Dragboard db = curveRightVw.startDragAndDrop(TransferMode.ANY);
+			ClipboardContent content = new ClipboardContent();
+			content.putImage(curveRight);
+			content.putString("curveRight");
+			db.setContent(content);
+			e.consume();
+		});
+		
+		curveLeftVw.setOnDragDetected(e->{
+			Dragboard db = curveLeftVw.startDragAndDrop(TransferMode.ANY);
+			ClipboardContent content = new ClipboardContent();
+			content.putImage(curveLeft);
+			content.putString("curveLeft");
 			db.setContent(content);
 			e.consume();
 		});
@@ -118,8 +165,17 @@ public class TrainsGUI extends Application{
 					else if(trackName.equals("sensor")){
 						track = new SensorTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + SENSOR_IMG);
 					}
+					else if(trackName.equals("switchRight")){
+						track = new SwitchRightTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + SWITCHRIGHT_IMG);
+					}
 					else if(trackName.equals("switchLeft")){
 						track = new SwitchLeftTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + SWITCHLEFT_IMG);
+					}
+					else if(trackName.equals("curveRight")){
+						track = new CurveRightTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + CURVERIGHT_IMG);
+					}
+					else if(trackName.equals("curveLeft")){
+						track = new CurveLeftTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + CURVELEFT_IMG);
 					}
 				}
 				catch(FileNotFoundException err){
@@ -138,12 +194,19 @@ public class TrainsGUI extends Application{
 		});
 		/****************************************/
 
-		/*************Organization of selection area************/	
-		//VBox trackSelectionArea = new VBox(20, straightImgVw, sensorImgVw, switchLeftVw);
-		VBox trackSelectionArea = new VBox(20, straightImgVw, sensorImgVw);
-		trackSelectionArea.setPrefHeight(SELECTION_AREA_HEIGHT);
-		trackSelectionArea.setPrefWidth(SELECTION_AREA_WIDTH);
+		/*************Organization of selection area************/
+		//VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveRightVw, curveLeftVw);
+		//VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, curveRightVw);
+		VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, curveRightVw, curveLeftVw);
 
+		
+		ScrollPane trackSelectionArea = new ScrollPane();
+		trackSelectionArea.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+		trackSelectionArea.setHbarPolicy(ScrollBarPolicy.NEVER);
+		trackSelectionArea.setContent(vbox);
+		//trackSelectionArea.setPrefHeight(SELECTION_AREA_HEIGHT);
+		//trackSelectionArea.setPrefWidth(SELECTION_AREA_WIDTH);
+	
 		String selectionAreaStyle = "-fx-border-color: black;" +
 				"-fx-border-width: 1;" +
 				"-fx-border-style: solid;";
@@ -168,9 +231,15 @@ public class TrainsGUI extends Application{
 			trackLayoutArea.getChildren().clear();
 			trackLayoutArea.getChildren().addAll(tracks);
 		});
-
+		
+		Button generateGraphButton = new Button("Generate Graph");
+		generateGraphButton.setOnAction(e->{
+			Track.generateGraph();
+		});
+		
 		/*****************Layout Organization****************/
-		VBox buttons = new VBox(25, removeButton, removeAllButton);
+		VBox buttons = new VBox(25, removeButton, removeAllButton, generateGraphButton);
+		trackLayoutArea.setMaxWidth(900);
 		HBox hbox = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);
 		Group root = new Group(hbox);
 
