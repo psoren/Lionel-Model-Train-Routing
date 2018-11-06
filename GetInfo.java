@@ -4,12 +4,12 @@ import java.net.*;
 import java.util.*;
 
 import javafx.application.*;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+//import javafx.event.ActionEvent;
+//import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+//import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class GetInfo extends Application{
@@ -122,6 +122,36 @@ public class GetInfo extends Application{
 		
 		return result;
 	}
+	
+	public static int HexToDec(String hex)
+	{
+		char hexChars[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+		
+		int power = 1;
+		
+		int result = 0;
+		
+		for(int i = hex.length() - 1; i >= 0; --i)
+		{
+			char num = hex.charAt(i);
+			
+			int base = 0;
+			
+			for(int j = 0; j < hexChars.length; ++j)
+			{
+				if(num == hexChars[j])
+				{
+					base = j;
+				}
+			}
+			
+			result += base * power;
+			
+			power = power * 16;
+		}
+		
+		return result;
+	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception 
@@ -139,14 +169,14 @@ public class GetInfo extends Application{
 		ArrayList<Button> buttons = new ArrayList<Button>();
 		
 		Button btn_1 = new Button();
-		String text_1 = wifiID.get(0);
+		int text_1 = HexToDec(wifiID.get(0));
 		btn_1.setText("wifi " + text_1);
 		buttons.add(btn_1);
 		
 		for (int i = 0; i < switchID.size(); i++)
 		{
 			Button btn_2 = new Button();
-			String text_2 = switchID.get(i);
+			int text_2 = HexToDec(switchID.get(i));
 		    btn_2.setText("switch " + text_2);
 		    buttons.add(btn_2);
 		}
@@ -154,7 +184,7 @@ public class GetInfo extends Application{
 		for (int i = 0; i < sensorID.size(); i++)
 		{
 			Button btn_3 = new Button();
-			String text_3 = sensorID.get(i);
+			int text_3 = HexToDec(sensorID.get(i));
 		    btn_3.setText("sensor " + text_3);
 		    buttons.add(btn_3);
 		}
@@ -181,6 +211,9 @@ public class GetInfo extends Application{
 	    	root.add(buttons.get(i), 2, i);
 	    }	    
 
+	    Button check = new Button();
+	    check.setText("check");
+	    root.add(check, 2, buttons.size());
 	    Scene scene = new Scene(root, 1000, 850);
 	    
 	    primaryStage.setTitle("Check components");
@@ -198,6 +231,8 @@ public class GetInfo extends Application{
 //		System.out.println(Arrays.asList(info));
 		
 		launch(args);
+		
+//		System.out.println(HexToDec("123"));
 		
 	}
 }
