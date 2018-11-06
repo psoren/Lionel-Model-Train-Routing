@@ -10,14 +10,15 @@ public class CurveLeftTrack extends Track{
 		this.numRotations = 12;
 		this.frontOrientation = 330;
 		this.backOrientation = 0;
-	}		
-	
-	public Point2D getFrontCurveCoords(){		
-		return this.localToParent(new Point2D(this.getWidth() - 20,-4));
+	}
+
+	@Override
+	Point2D getFrontCoords() {
+		return this.localToParent(this.getWidth()-20, -5);
 	}
 	
-	public Point2D getBackCurveCoords(){		
-		return this.localToParent(new Point2D(0, 40));
+	@Override
+	Point2D getBackCoords() {
+		return this.localToParent(0, this.getHeight()-50);
 	}
-	
 }

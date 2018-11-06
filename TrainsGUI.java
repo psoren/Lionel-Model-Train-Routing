@@ -16,7 +16,6 @@ public class TrainsGUI extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception{
-
 		
 		/************Constants***********/
 		final double PROGRAM_HEIGHT = 600;
@@ -196,10 +195,8 @@ public class TrainsGUI extends Application{
 
 		/*************Organization of selection area************/
 		//VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveRightVw, curveLeftVw);
-		//VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, curveRightVw);
-		VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, curveRightVw, curveLeftVw);
+		VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveLeftVw);
 
-		
 		ScrollPane trackSelectionArea = new ScrollPane();
 		trackSelectionArea.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		trackSelectionArea.setHbarPolicy(ScrollBarPolicy.NEVER);

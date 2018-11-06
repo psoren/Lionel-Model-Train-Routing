@@ -10,20 +10,15 @@ public class CurveRightTrack extends Track{
 		this.numRotations = 12;
 		this.frontOrientation = 30;
 		this.backOrientation = 0;
-	}		
+	}	
 	
-	public Point2D getFrontCurveCoords(){		
-		return this.localToParent(new Point2D(this.getWidth(), this.getHeight() - 40));
+	@Override
+	Point2D getFrontCoords() {
+		return this.localToParent(this.getWidth(),this.getHeight()-40);
 	}
 	
-	public Point2D getBackCurveCoords(){		
-		return this.localToParent(new Point2D(0, 0));
+	@Override
+	Point2D getBackCoords() {
+		return this.localToParent(0,0);
 	}
-	
-	
-	
-	
-	
-	
-	
 }

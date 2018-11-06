@@ -111,13 +111,6 @@ public abstract class Track extends StackPane{
 	private void enableDragging(Track track){
 		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
 		this.setOnMousePressed(e -> {
-
-			//System.out.println("front orientation: " + this.frontOrientation);
-			//System.out.println("back orientation: " + this.backOrientation);
-
-			//System.out.println("x: " + this.getLayoutX());
-			//System.out.println("y: " + this.getLayoutY());
-
 			mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
 		});
 		this.setOnMouseDragged(e -> {
@@ -132,115 +125,42 @@ public abstract class Track extends StackPane{
 				for(Track t: TrainsGUI.tracks){
 					boolean snapped = false;
 
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					//Dragging towards the side of a SwitchRightTrack
-					if(t instanceof SwitchRightTrack && ((SwitchRightTrack) t).sideOrientation == this.backOrientation){
-
-						double x1 = this.getBackLeft().getX();
-						double x2 = ((SwitchRightTrack)t).getRightSwitchCoords().getX();
-
-						double y1 = this.getBackLeft().getY();
-						double y2 = ((SwitchRightTrack)t).getRightSwitchCoords().getY();
-
-						//The distance between this track and the bottom of the other track
-						double d = Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2),2));
-
-						if(d < SNAPTOGETHERDISTANCE){
-							double x = ((SwitchRightTrack) t).getRightSwitchCoords().getX();
-							this.setLayoutX(this.getLayoutX() + x - this.getBackLeft().getX());
-
-							double y = ((SwitchRightTrack) t).getRightSwitchCoords().getY();
-							this.setLayoutY(this.getLayoutY() + y - this.getBackLeft().getY());
-							snapped = true;
-
-							this.locked = true;
-							t.locked = true;
-
-							this.enableDisconnectTrack();
-							t.enableDisconnectTrack();
-
-							this.frontTrack = t;
-							((SwitchRightTrack) t).sideTrack = this;
-							this.highlightTracks();
-							break;		
-						}
+					//If the front of this track is close to the back of the other track
+					if(this.getFrontCoords().distance(t.getBackCoords()) < SNAPTOGETHERDISTANCE
+							&& this.frontOrientation == t.backOrientation){	
+						this.setLayoutX(this.getLayoutX() + t.getBackCoords().getX() - this.getFrontCoords().getX());
+						this.setLayoutY(this.getLayoutY() + t.getBackCoords().getY() - this.getFrontCoords().getY());
+						snapped = true;
 					}
 
-					//Dragging towards the back of another track
-					if(this.distanceBetweenThisFrontAndOtherBack(t) < SNAPTOGETHERDISTANCE){
-						if(this.frontOrientation == t.backOrientation){
-							this.setLayoutX(this.getLayoutX() + t.getBackLeft().getX() - this.getFrontLeft().getX());
-							this.setLayoutY(this.getLayoutY() + t.getBackLeft().getY() - this.getFrontLeft().getY());		
-							snapped = true;
-						}	
+					//If the back of this track is close to the front of the other track
+					else if(this.getBackCoords().distance(t.getFrontCoords()) < SNAPTOGETHERDISTANCE
+							&& this.backOrientation == t.frontOrientation){
+						this.setLayoutX(this.getLayoutX() + t.getFrontCoords().getX() - this.getBackCoords().getX());
+						this.setLayoutY(this.getLayoutY() + t.getFrontCoords().getY() - this.getBackCoords().getY());
+						snapped = true;
+					}
 
-						if(t instanceof CurveRightTrack && t.backOrientation == this.frontOrientation){
-
-							double x = ((CurveRightTrack) t).getBackCurveCoords().getX();
-							this.setLayoutX(this.getLayoutX() + x - this.getFrontLeft().getX());
-
-							double y = ((CurveRightTrack) t).getBackCurveCoords().getY();
-							this.setLayoutY(this.getLayoutY() + y - this.getFrontLeft().getY());
-							snapped = true;
-						}
-
-						if(t instanceof CurveLeftTrack && t.backOrientation == this.frontOrientation){
-							double x = ((CurveLeftTrack) t).getBackCurveCoords().getX();
-							this.setLayoutX(this.getLayoutX() + x - this.getFrontLeft().getX());
-
-							double y = ((CurveLeftTrack) t).getBackCurveCoords().getY();
-							this.setLayoutY(this.getLayoutY() + y - this.getFrontLeft().getY());
+					else if(t instanceof SwitchRightTrack){
+						//If the back of this track is close to the side of the right switch track
+						if(this.getBackCoords().distance(((SwitchRightTrack)t).getSideCoords()) < SNAPTOGETHERDISTANCE
+								&& this.backOrientation == ((SwitchRightTrack)t).sideOrientation){
+							this.setLayoutX(this.getLayoutX() + ((SwitchRightTrack)t).getSideCoords().getX() - this.getBackCoords().getX());
+							this.setLayoutY(this.getLayoutY() + ((SwitchRightTrack)t).getSideCoords().getY() - this.getBackCoords().getY());
 							snapped = true;
 						}
 					}
 
-					//Dragging towards the front of another track
-					else if(this.distanceBetweenThisBackAndOtherFront(t) < SNAPTOGETHERDISTANCE){
-						//if the orientations match, snap them together
-						if(this.backOrientation == t.frontOrientation){
-							this.setLayoutX(this.getLayoutX() + t.getFrontLeft().getX() - this.getBackLeft().getX());
-							this.setLayoutY(this.getLayoutY() + t.getFrontLeft().getY() - this.getBackLeft().getY());
+					else if(t instanceof SwitchLeftTrack){
+						//If the back of this track is close to the side of the right switch track
+						if(this.getBackCoords().distance(((SwitchLeftTrack)t).getSideCoords()) < SNAPTOGETHERDISTANCE
+								&& this.backOrientation == ((SwitchLeftTrack)t).sideOrientation){
+							this.setLayoutX(this.getLayoutX() + ((SwitchLeftTrack)t).getSideCoords().getX() - this.getBackCoords().getX());
+							this.setLayoutY(this.getLayoutY() + ((SwitchLeftTrack)t).getSideCoords().getY() - this.getBackCoords().getY());
 							snapped = true;
-
-							//we need to translate it more
-							if(t instanceof CurveRightTrack){
-								double x = ((CurveRightTrack) t).getFrontCurveCoords().getX();
-								this.setLayoutX(this.getLayoutX() + x - this.getBackLeft().getX());
-
-								double y = ((CurveRightTrack) t).getFrontCurveCoords().getY();
-								this.setLayoutY(this.getLayoutY() + y - this.getBackLeft().getY());
-								snapped = true;
-							}
-
-							//if the other track is a curvelefttrack
-							if(t instanceof CurveLeftTrack){
-								double x = ((CurveLeftTrack) t).getFrontCurveCoords().getX();
-								this.setLayoutX(this.getLayoutX() + x - this.getBackLeft().getX());
-
-								double y = ((CurveLeftTrack) t).getFrontCurveCoords().getY();
-								this.setLayoutY(this.getLayoutY() + y - this.getBackLeft().getY());
-								snapped = true;
-							}
 						}
 					}
+
 					if(snapped){
 						this.locked = true;
 						t.locked = true;
@@ -253,39 +173,13 @@ public abstract class Track extends StackPane{
 						this.highlightTracks();
 						break;
 					}
-				}		
-			}
+				}
+			}		
 		});
 	}
 
-	//Returns the distance between the top of this track
-	//and the bottom of the other one
-	private int distanceBetweenThisFrontAndOtherBack(Track track){
-		int x1 = (int)this.getFrontLeft().getX();
-		int x2 = (int)track.getBackLeft().getX();
-
-		int y1 = (int)this.getFrontLeft().getY();
-		int y2 = (int)track.getBackLeft().getY();
-
-		//The distance between this track and the bottom of the other track
-		return (int)Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2),2));
-	}
-
-	//Returns the distance between the top of this track
-	//and the bottom of the other one
-	private int distanceBetweenThisBackAndOtherFront(Track track){
-		int x1 = (int)this.getBackLeft().getX();
-		int x2 = (int)track.getFrontLeft().getX();
-
-		int y1 = (int)this.getBackLeft().getY();
-		int y2 = (int)track.getFrontLeft().getY();
-
-		//The distance between this track and the bottom of the other track
-		return (int)Math.sqrt(Math.pow((x1-x2), 2) + Math.pow((y1-y2),2));
-	}
-
 	//A way to highlight the tracks based on their orientation
-	private void highlightTracks(){
+	protected void highlightTracks(){
 		//loop through the frontTrack list
 		Track fTrack = this.frontTrack;
 		while(fTrack != null){
@@ -321,30 +215,19 @@ public abstract class Track extends StackPane{
 	}
 
 	//Rotate the track's image by 360/numRotations degrees clockwise
-	private void rotateCW(){
-
+	protected void rotateCW(){
 		this.frontOrientation += 360/this.numRotations;
 		this.frontOrientation %= 360;
 
 		this.backOrientation += 360/this.numRotations;
 		this.backOrientation %= 360;
 
-		if(this instanceof SwitchRightTrack){
-			((SwitchRightTrack)this).sideOrientation  += 360/this.numRotations;
-			((SwitchRightTrack)this).sideOrientation %= 360;
-		}
-
-		if(this instanceof SwitchLeftTrack){
-			((SwitchLeftTrack)this).sideOrientation += 360/this.numRotations;
-			((SwitchLeftTrack)this).sideOrientation %= 360;
-		}
-
 		this.setRotate(this.backOrientation);
 		this.highlightTracks();
 	}
 
 	//Rotate the track's image by 360/numRotations degrees counter-clockwise
-	private void rotateCCW(){
+	protected void rotateCCW(){
 
 		this.frontOrientation -= 360/this.numRotations;
 		this.frontOrientation += 360;
@@ -353,18 +236,6 @@ public abstract class Track extends StackPane{
 		this.backOrientation -= 360/this.numRotations;
 		this.backOrientation += 360;
 		this.backOrientation %= 360;
-
-		if(this instanceof SwitchRightTrack){
-			((SwitchRightTrack)this).sideOrientation -= 360/this.numRotations;
-			((SwitchRightTrack)this).sideOrientation += 360;
-			((SwitchRightTrack)this).sideOrientation %= 360;
-		}
-
-		if(this instanceof SwitchLeftTrack){
-			((SwitchLeftTrack)this).sideOrientation -= 360/this.numRotations;
-			((SwitchLeftTrack)this).sideOrientation += 360;
-			((SwitchLeftTrack)this).sideOrientation %= 360;
-		}
 
 		this.setRotate(this.backOrientation);
 		this.highlightTracks();
@@ -439,20 +310,13 @@ public abstract class Track extends StackPane{
 		System.out.println("generate graph was called");	
 	}
 
-	//The following methods get the coordinates of the track in the parent coordinate system
-	private Point2D getFrontLeft(){
-		return this.localToParent(this.getWidth(),0);
-	}
+	//Gets the front left of the track in its respective
+	//coordinate system and returns it in the parent
+	//coordinate system
+	abstract Point2D getFrontCoords();
 
-	private Point2D getFrontRight(){
-		return this.localToParent(this.getWidth(), this.getHeight());
-	}
-
-	private Point2D getBackLeft(){
-		return this.localToParent(0,0);
-	}
-
-	private Point2D getBackRight(){
-		return this.localToParent(0, this.getHeight());
-	}
+	//Gets the back left of the track in its respective
+	//coordinate system and returns it in the parent
+	//coordinate system
+	abstract Point2D getBackCoords();
 }
