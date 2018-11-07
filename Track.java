@@ -58,7 +58,7 @@ public abstract class Track extends StackPane{
 		this.backTrack = null;
 		this.locked = false;
 
-		ImageView imageView = new ImageView(new Image(new FileInputStream(imageSource)));
+		ImageView imageView = new ImageView(new Image(imageSource));
 
 		this.getChildren().addAll(new Rectangle((int)imageView.getFitWidth(), 
 				(int)imageView.getFitHeight(), Color.BLACK), imageView);

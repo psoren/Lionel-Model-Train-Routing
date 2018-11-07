@@ -27,7 +27,10 @@ public class TrainsGUI extends Application{
 		final double LAYOUT_AREA_HEIGHT = PROGRAM_HEIGHT;
 		final double LAYOUT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
 
-		final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
+		
+		//final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
+		final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
+	
 		final String STRAIGHT_IMG = "straight.png";
 		final String SENSOR_IMG = "sensor.png";
 		final String SWITCHRIGHT_IMG = "switchRight.png";
@@ -53,35 +56,37 @@ public class TrainsGUI extends Application{
 
 
 		/************Track Selection Area***********/
-		Image straight = new Image(new FileInputStream(BASE + STRAIGHT_IMG));
+		Image straight = new Image(BASE + STRAIGHT_IMG);		
 		ImageView straightImgVw = new ImageView(straight);
+		
 		straightImgVw.setFitHeight(50);
 		straightImgVw.setFitWidth(100);
-
-		Image sensor = new Image(new FileInputStream(BASE + SENSOR_IMG));
+		
+		Image sensor = new Image(BASE + SENSOR_IMG);
 		ImageView sensorImgVw = new ImageView(sensor);
 		sensorImgVw.setFitHeight(55);
 		sensorImgVw.setFitWidth(50);
 		
-		Image switchRight = new Image(new FileInputStream(BASE + SWITCHRIGHT_IMG));
+		Image switchRight = new Image(BASE + SWITCHRIGHT_IMG);
 		ImageView switchRightVw = new ImageView(switchRight);
 		switchRightVw.setFitHeight(60);
 		switchRightVw.setFitWidth(100);
 		
-		Image switchLeft = new Image(new FileInputStream(BASE + SWITCHLEFT_IMG));
+		Image switchLeft = new Image(BASE + SWITCHLEFT_IMG);
 		ImageView switchLeftVw = new ImageView(switchLeft);
 		switchLeftVw.setFitHeight(60);
 		switchLeftVw.setFitWidth(100);
 			
-		Image curveRight = new Image(new FileInputStream(BASE + CURVERIGHT_IMG));
+		Image curveRight = new Image(BASE + CURVERIGHT_IMG);
 		ImageView curveRightVw = new ImageView(curveRight);
 		curveRightVw.setFitHeight(60);
 		curveRightVw.setFitWidth(100);
 		
-		Image curveLeft = new Image(new FileInputStream(BASE + CURVELEFT_IMG));
+		Image curveLeft = new Image(BASE + CURVELEFT_IMG);
 		ImageView curveLeftVw = new ImageView(curveLeft);
 		curveLeftVw.setFitHeight(60);
 		curveLeftVw.setFitWidth(100);
+		
 		/****************************************/
 
 
@@ -95,7 +100,7 @@ public class TrainsGUI extends Application{
 			db.setContent(content);
 			e.consume();
 		});
-
+		
 		sensorImgVw.setOnDragDetected(e->{
 			Dragboard db = sensorImgVw.startDragAndDrop(TransferMode.ANY);
 			ClipboardContent content = new ClipboardContent();
@@ -140,6 +145,7 @@ public class TrainsGUI extends Application{
 			db.setContent(content);
 			e.consume();
 		});
+		
 
 		trackLayoutArea.setOnDragOver(e->{
 			if (e.getGestureSource() != trackLayoutArea &&
@@ -161,6 +167,7 @@ public class TrainsGUI extends Application{
 					if(trackName.equals("straight")){
 						track = new StraightTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + STRAIGHT_IMG);
 					}
+					
 					else if(trackName.equals("sensor")){
 						track = new SensorTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + SENSOR_IMG);
 					}
@@ -176,6 +183,7 @@ public class TrainsGUI extends Application{
 					else if(trackName.equals("curveLeft")){
 						track = new CurveLeftTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + CURVELEFT_IMG);
 					}
+					
 				}
 				catch(FileNotFoundException err){
 					err.printStackTrace();
@@ -196,7 +204,7 @@ public class TrainsGUI extends Application{
 		/*************Organization of selection area************/
 		//VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveRightVw, curveLeftVw);
 		VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveLeftVw);
-
+		
 		ScrollPane trackSelectionArea = new ScrollPane();
 		trackSelectionArea.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		trackSelectionArea.setHbarPolicy(ScrollBarPolicy.NEVER);
