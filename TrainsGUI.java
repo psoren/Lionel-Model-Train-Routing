@@ -27,10 +27,7 @@ public class TrainsGUI extends Application{
 		final double LAYOUT_AREA_HEIGHT = PROGRAM_HEIGHT;
 		final double LAYOUT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
 
-		
-		//final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
-		final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
-	
+		final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";	
 		final String STRAIGHT_IMG = "straight.png";
 		final String SENSOR_IMG = "sensor.png";
 		final String SWITCHRIGHT_IMG = "switchRight.png";
