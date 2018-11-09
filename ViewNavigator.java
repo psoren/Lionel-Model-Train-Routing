@@ -1,4 +1,3 @@
-package application;
 
 import javafx.fxml.FXMLLoader;
 

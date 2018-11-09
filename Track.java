@@ -114,7 +114,6 @@ public abstract class Track extends StackPane{
 			mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
 		});
 		this.setOnMouseDragged(e -> {
-
 			if(!this.locked){
 				double deltaX = e.getSceneX() - mouseAnchor.get().getX();
 				double deltaY = e.getSceneY() - mouseAnchor.get().getY();
@@ -170,7 +169,7 @@ public abstract class Track extends StackPane{
 
 						this.frontTrack = t;
 						t.backTrack = this;
-						this.highlightTracks();
+						//this.highlightTracks();
 						break;
 					}
 				}
@@ -223,7 +222,7 @@ public abstract class Track extends StackPane{
 		this.backOrientation %= 360;
 
 		this.setRotate(this.backOrientation);
-		this.highlightTracks();
+		//this.highlightTracks();
 	}
 
 	//Rotate the track's image by 360/numRotations degrees counter-clockwise
@@ -238,7 +237,7 @@ public abstract class Track extends StackPane{
 		this.backOrientation %= 360;
 
 		this.setRotate(this.backOrientation);
-		this.highlightTracks();
+		//this.highlightTracks();
 	}
 
 	//This method is called whenever the user wants to disconnect the selected

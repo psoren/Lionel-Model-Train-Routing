@@ -34,7 +34,7 @@ public class SwitchLeftTrack extends Track{
 		this.sideOrientation %= 360;
 
 		this.setRotate(this.backOrientation);
-		this.highlightTracks();
+		//this.highlightTracks();
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class SwitchLeftTrack extends Track{
 		this.sideOrientation %= 360;
 
 		this.setRotate(this.backOrientation);
-		this.highlightTracks();
+		//this.highlightTracks();
 	}
 
 	@Override
@@ -66,6 +66,6 @@ public class SwitchLeftTrack extends Track{
 	}
 	
 	public Point2D getSideCoords(){
-		return this.localToParent(this.getWidth()+3, this.getHeight()-37);
+		return this.localToParent(this.getWidth()-30, 0);
 	}
 }

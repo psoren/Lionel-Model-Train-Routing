@@ -34,7 +34,7 @@ public class SwitchRightTrack extends Track{
 		this.sideOrientation %= 360;
 
 		this.setRotate(this.backOrientation);
-		this.highlightTracks();
+		//this.highlightTracks();
 	}
 
 	@Override 
@@ -52,7 +52,7 @@ public class SwitchRightTrack extends Track{
 		this.sideOrientation %= 360;
 
 		this.setRotate(this.backOrientation);
-		this.highlightTracks();
+		//this.highlightTracks();
 	}
 
 	@Override
