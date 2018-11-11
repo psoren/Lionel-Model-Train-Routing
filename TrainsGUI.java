@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 import javafx.application.*;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -13,6 +14,11 @@ import javafx.stage.*;
 public class TrainsGUI extends Application{
 
 	public static ArrayList<Track> tracks = new ArrayList<Track>();
+
+	Scene trainWaypointScene;
+	Scene trackLayoutScene;
+	ToggleGroup trainRadioButtonGroup;
+	VBox trainRadioButtonsBox;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception{
@@ -27,7 +33,11 @@ public class TrainsGUI extends Application{
 		final double LAYOUT_AREA_HEIGHT = PROGRAM_HEIGHT;
 		final double LAYOUT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
 
-		final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";	
+		final double WAYPOINT_AREA_HEIGHT = PROGRAM_HEIGHT;
+		final double WAYPOINT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
+
+		final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
+
 		final String STRAIGHT_IMG = "straight.png";
 		final String SENSOR_IMG = "sensor.png";
 		final String SWITCHRIGHT_IMG = "switchRight.png";
@@ -40,7 +50,6 @@ public class TrainsGUI extends Application{
 		/************Track Layout Area***********/
 		Group group = new Group();
 
-		//group.getChildren().addAll(tracks);
 		Pane trackLayoutArea = new Pane(group);
 
 		trackLayoutArea.setOnMouseClicked(e->{
@@ -143,7 +152,6 @@ public class TrainsGUI extends Application{
 			e.consume();
 		});
 
-
 		trackLayoutArea.setOnDragOver(e->{
 			if (e.getGestureSource() != trackLayoutArea &&
 					e.getDragboard().hasImage()) {
@@ -180,14 +188,13 @@ public class TrainsGUI extends Application{
 					else if(trackName.equals("curveLeft")){
 						track = new CurveLeftTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + CURVELEFT_IMG);
 					}
-
 				}
 				catch(FileNotFoundException err){
 					err.printStackTrace();
 				}
 				//Shift to account for width and height of track
-				track.setLayoutX(track.getLayoutX() - track.getWidth()/2);
-				track.setLayoutY(track.getLayoutY() - track.getHeight()/2);
+				track.setLayoutX(track.getLayoutX() - track.getWidth()/1.7);
+				track.setLayoutY(track.getLayoutY() - track.getHeight()*1.5);
 
 				tracks.add(track);
 				trackLayoutArea.getChildren().add(track);
@@ -205,8 +212,8 @@ public class TrainsGUI extends Application{
 		trackSelectionArea.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		trackSelectionArea.setHbarPolicy(ScrollBarPolicy.NEVER);
 		trackSelectionArea.setContent(vbox);
-		//trackSelectionArea.setPrefHeight(SELECTION_AREA_HEIGHT);
-		//trackSelectionArea.setPrefWidth(SELECTION_AREA_WIDTH);
+		trackSelectionArea.setMinHeight(SELECTION_AREA_HEIGHT);
+		trackSelectionArea.setMinWidth(SELECTION_AREA_WIDTH);
 
 		String selectionAreaStyle = "-fx-border-color: black;" +
 				"-fx-border-width: 1;" +
@@ -242,11 +249,19 @@ public class TrainsGUI extends Application{
 		VBox buttons = new VBox(25, removeButton, removeAllButton, generateGraphButton);
 		trackLayoutArea.setMaxWidth(900);
 		HBox hbox = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);
-		Group root = new Group(hbox);
 
-		Scene scene = new Scene(root, PROGRAM_WIDTH, PROGRAM_HEIGHT);
+		Button TrainWaypointSceneButton = new Button("Train Waypoints");
+		TrainWaypointSceneButton.setOnAction(e->{
+			primaryStage.setScene(trainWaypointScene);
+		});
 
-		scene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
+		HBox controlBarButtons = new HBox(20, TrainWaypointSceneButton);
+		controlBarButtons.setAlignment(Pos.BASELINE_CENTER);
+		VBox controlBar = new VBox(20, controlBarButtons, hbox);
+		Group root = new Group(controlBar);
+
+		trackLayoutScene = new Scene(root, PROGRAM_WIDTH, PROGRAM_HEIGHT);
+		trackLayoutScene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
 			if(Track.selected != null){
 				if(e.getCode()==KeyCode.LEFT){
 					Track.selected.rotateCCW();
@@ -256,9 +271,87 @@ public class TrainsGUI extends Application{
 				}
 			}
 		});
+		/****************************************************/
+
+
+		/***************Second Scene********************/
+		Button trackLayoutScreenButton = new Button("Track Layout");
+		trackLayoutScreenButton.setOnAction(e->{
+			primaryStage.setScene(trackLayoutScene);
+		});
+
+		HBox topButtons= new HBox(trackLayoutScreenButton);
+		topButtons.setAlignment(Pos.BASELINE_CENTER);
+
+		//The area where the user can click on and add waypoints
+		Group waypointAreaGroup = new Group();
+		Pane waypointAreaPane = new Pane(waypointAreaGroup);
+		waypointAreaPane.setPrefHeight(WAYPOINT_AREA_HEIGHT);
+		waypointAreaPane.setPrefWidth(WAYPOINT_AREA_WIDTH);
+
+		//add the tracks to the pane
+		for(Track t: TrainsGUI.tracks){
+
+		}
+
+		/**The area where the user can select which train they are adding waypoints for**/
+		trainRadioButtonGroup = new ToggleGroup();
+		trainRadioButtonsBox = new VBox(10);
+		
+		ScrollPane trainWaypointsScrollPane = new ScrollPane();
+		trainWaypointsScrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+		trainWaypointsScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
+		trainWaypointsScrollPane.setContent(trainRadioButtonsBox);
+		trackSelectionArea.setMaxHeight(300);
+		trackSelectionArea.setMinWidth(SELECTION_AREA_WIDTH);
+
+		//When clicked, this button will add a new train to the radioButtonGroup
+		Button addTrainButton = new Button("Add Train");
+		addTrainButton.setOnAction(e->{
+			int toggleGroupSize = trainRadioButtonGroup.getToggles().size() + 1;
+			
+			//The train radio button
+			RadioButton newTrainButton = new RadioButton("Train " + toggleGroupSize);
+			newTrainButton.setToggleGroup(trainRadioButtonGroup);
+			
+			//The associated delete train button
+			Button deleteTrainButton = new Button("X");
+			
+			HBox trainBox = new HBox(10, newTrainButton, deleteTrainButton);
+			
+			//Add new radio button to VBox
+			trainRadioButtonsBox.getChildren().add(trainBox);
+		});
+
+		VBox trainPickArea = new VBox(20, addTrainButton, trainWaypointsScrollPane);
+		trainPickArea.setMinWidth(200);
+		trainPickArea.setStyle(selectionAreaStyle);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//The main HBox
+		HBox mainBottomArea = new HBox(waypointAreaPane, trainPickArea);
+		VBox scene2Main = new VBox(topButtons, mainBottomArea);
+
+		trainWaypointScene = new Scene(scene2Main,PROGRAM_WIDTH, PROGRAM_HEIGHT);
+		/****************************************************/
+
+
+		/***************Final Stage Stuff**********************/
 
 		primaryStage.setTitle("Trains");
-		primaryStage.setScene(scene);
+		primaryStage.setScene(trackLayoutScene);
 		primaryStage.show();
 		/******************************************************/
 	}

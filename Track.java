@@ -160,6 +160,24 @@ public abstract class Track extends StackPane{
 						}
 					}
 
+					//If you are dragging a switchRightTrack towards another track
+					else if (this instanceof SwitchRightTrack){
+						if(((SwitchRightTrack)this).getSideCoords().distance(t.getBackCoords()) < SNAPTOGETHERDISTANCE){
+							this.setLayoutX(this.getLayoutX() - ((SwitchRightTrack)this).getSideCoords().getX() + t.getBackCoords().getX());
+							this.setLayoutY(this.getLayoutY() - ((SwitchRightTrack)this).getSideCoords().getY() + t.getBackCoords().getY());
+							snapped = true;
+						}
+					}
+					
+					//If you are dragging a switchLeftTrack towards another track
+					else if (this instanceof SwitchLeftTrack){
+						if(((SwitchLeftTrack)this).getSideCoords().distance(t.getBackCoords()) < SNAPTOGETHERDISTANCE){
+							this.setLayoutX(this.getLayoutX() - ((SwitchLeftTrack)this).getSideCoords().getX() + t.getBackCoords().getX());
+							this.setLayoutY(this.getLayoutY() - ((SwitchLeftTrack)this).getSideCoords().getY() + t.getBackCoords().getY());
+							snapped = true;
+						}
+					}
+
 					if(snapped){
 						this.locked = true;
 						t.locked = true;
@@ -310,12 +328,10 @@ public abstract class Track extends StackPane{
 	}
 
 	//Gets the front left of the track in its respective
-	//coordinate system and returns it in the parent
-	//coordinate system
+	//coordinate system and returns it in the parent coordinate system
 	abstract Point2D getFrontCoords();
 
 	//Gets the back left of the track in its respective
-	//coordinate system and returns it in the parent
-	//coordinate system
+	//coordinate system and returns it in the parent coordinate system
 	abstract Point2D getBackCoords();
 }
