@@ -275,7 +275,7 @@ public class TrainsGUI extends Application{
 			primaryStage.setScene(trackLayoutScene);
 
 			trackLayoutArea.getChildren().clear();
-			
+
 			//Set the location of the tracks to what they were previously	
 			for(int i = 0; i < tracks.size(); i++){
 				tracks.get(i).setLayoutX(trackLayoutAreaCoords.get(i).getX());
@@ -339,14 +339,13 @@ public class TrainsGUI extends Application{
 					}
 				}
 
-				//Go through and reset ID's of HBoxes and deleteTrainButtons
+				//Go through and reset IDs of HBoxes and deleteTrainButtons
 				int newId = 1;
 				for(Node node: trainRadioButtonsBox.getChildren()){
 					HBox trainBox = (HBox)node;
 					trainBox.setId(Integer.toString(newId));
 					for(Node buttonBox: trainBox.getChildren()){
 						buttonBox.setId(Integer.toString(newId));
-
 						if(buttonBox instanceof RadioButton){
 							((RadioButton)buttonBox).setText("Train " + newId);
 						}
@@ -356,6 +355,8 @@ public class TrainsGUI extends Application{
 			});
 
 			HBox trainBox = new HBox(10, newTrainButton, deleteTrainButton);
+
+			trainBox.setStyle(generateRandomColor());
 			trainBox.setId(Integer.toString(trainNumber));
 
 			//Add new radio button to VBox
@@ -382,52 +383,24 @@ public class TrainsGUI extends Application{
 		/******************************************************/
 	}
 
-	private void moveTracksToWaypointArea(){
-
-		//get the max x,y and min x,y coords so we can display the track in the new area
-		double minX = 0;
-		double maxX = 0;
-		double minY = 0;
-		double maxY = 0;
-		
-		//need to save the location of the tracks in the layout area
-		//before we can move to the waypoint area
-		trackLayoutAreaCoords.clear();
-		for(Track t: tracks){
-			trackLayoutAreaCoords.add(new Point2D(t.getLayoutX(), t.getLayoutY()));
-			
-			if(t.getLayoutX() < minX){
-				minX = t.getLayoutX();
-			}
-			
-			if(t.getLayoutX() > maxX){
-				maxX = t.getLayoutX();
-			}
-			
-			if(t.getLayoutY() < minY){
-				minY = t.getLayoutY();
-			}
-			
-			if(t.getLayoutY() > maxY){
-				maxY = t.getLayoutY();
-			}
-		}
-		
-		
-		waypointArea.getChildren().clear();
-		int counter = 25;
-
-		for(Track t: tracks){
-
-			//add the tracks to the pane	
-			waypointArea.getChildren().add(t);
-			t.setLayoutX(counter);
-			t.setLayoutY(counter);
-			counter += 25;
-		}
+	private String generateRandomColor(){
+		int r = (int)(Math.random()*255);
+		int g = (int)(Math.random()*255);
+		int b = (int)(Math.random()*255);
+		return "-fx-background-color: rgb("+r+","+g+","+b+");";
 	}
 
-	
+	private void moveTracksToWaypointArea(){
+
+		//Save location of tracks in layout area
+		//before moving to waypoint area
+		trackLayoutAreaCoords.clear();
+		waypointArea.getChildren().clear();
+		for(Track t: tracks){
+			trackLayoutAreaCoords.add(new Point2D(t.getLayoutX(), t.getLayoutY()));
+			waypointArea.getChildren().add(t);
+		}
+	}
 
 	public static void main(String[] args) {
 		launch(args);
