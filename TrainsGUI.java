@@ -15,10 +15,15 @@ public class TrainsGUI extends Application{
 
 	public static ArrayList<Track> tracks = new ArrayList<Track>();
 
+	//The location of the tracks in the layout area
+	private ArrayList<Point2D> trackLayoutAreaCoords = new ArrayList<Point2D>();
+
+	//Stuff for the waypoint scene
 	Scene trainWaypointScene;
 	Scene trackLayoutScene;
 	ToggleGroup trainRadioButtonsToggleGroup;
 	VBox trainRadioButtonsBox;
+	Pane waypointArea;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception{
@@ -171,7 +176,6 @@ public class TrainsGUI extends Application{
 					if(trackName.equals("straight")){
 						track = new StraightTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + STRAIGHT_IMG);
 					}
-
 					else if(trackName.equals("sensor")){
 						track = new SensorTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + SENSOR_IMG);
 					}
@@ -192,8 +196,8 @@ public class TrainsGUI extends Application{
 					err.printStackTrace();
 				}
 				//Shift to account for width and height of track
-				track.setLayoutX(track.getLayoutX() - track.getWidth()/1.7);
-				track.setLayoutY(track.getLayoutY() - track.getHeight()*1.5);
+				track.setLayoutX(track.getLayoutX() - track.getWidth()/2);
+				track.setLayoutY(track.getLayoutY() - track.getHeight()/2);
 
 				tracks.add(track);
 				trackLayoutArea.getChildren().add(track);
@@ -239,25 +243,17 @@ public class TrainsGUI extends Application{
 			trackLayoutArea.getChildren().addAll(tracks);
 		});
 
-		Button generateGraphButton = new Button("Generate Graph");
-		generateGraphButton.setOnAction(e->{
-			Track.generateGraph();
+		Button trainWaypointSceneButton = new Button("Train Waypoints");
+		trainWaypointSceneButton.setOnAction(e->{
+			primaryStage.setScene(trainWaypointScene);
+			moveTracksToWaypointArea();
 		});
-
 		/*****************Layout Organization****************/
-		VBox buttons = new VBox(25, removeButton, removeAllButton, generateGraphButton);
+
+		VBox buttons = new VBox(25, removeButton, removeAllButton, trainWaypointSceneButton);
 		trackLayoutArea.setMaxWidth(900);
 		HBox hbox = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);
-
-		Button TrainWaypointSceneButton = new Button("Train Waypoints");
-		TrainWaypointSceneButton.setOnAction(e->{
-			primaryStage.setScene(trainWaypointScene);
-		});
-
-		HBox controlBarButtons = new HBox(20, TrainWaypointSceneButton);
-		controlBarButtons.setAlignment(Pos.BASELINE_CENTER);
-		VBox controlBar = new VBox(20, controlBarButtons, hbox);
-		Group root = new Group(controlBar);
+		Group root = new Group(hbox);
 
 		trackLayoutScene = new Scene(root, PROGRAM_WIDTH, PROGRAM_HEIGHT);
 		trackLayoutScene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
@@ -277,6 +273,15 @@ public class TrainsGUI extends Application{
 		Button trackLayoutScreenButton = new Button("Track Layout");
 		trackLayoutScreenButton.setOnAction(e->{
 			primaryStage.setScene(trackLayoutScene);
+
+			trackLayoutArea.getChildren().clear();
+			
+			//Set the location of the tracks to what they were previously	
+			for(int i = 0; i < tracks.size(); i++){
+				tracks.get(i).setLayoutX(trackLayoutAreaCoords.get(i).getX());
+				tracks.get(i).setLayoutY(trackLayoutAreaCoords.get(i).getY());
+				trackLayoutArea.getChildren().add(tracks.get(i));
+			}
 		});
 
 		HBox topButtons= new HBox(trackLayoutScreenButton);
@@ -284,32 +289,12 @@ public class TrainsGUI extends Application{
 
 		/**The area where the user can click on and add waypoints**/
 		Group waypointAreaGroup = new Group();
-		Pane waypointAreaPane = new Pane(waypointAreaGroup);
-		waypointAreaPane.setPrefHeight(WAYPOINT_AREA_HEIGHT);
-		waypointAreaPane.setPrefWidth(WAYPOINT_AREA_WIDTH);
-
-		//add the tracks to the pane
-		int counter = 25;
-		
-		System.out.println("In the second scene part");
-
-		
-		for(Track t: TrainsGUI.tracks){
-
-			System.out.println("there are " + TrainsGUI.tracks.size() + " tracks");
-			
-			
-			
-			t.setLayoutX(counter);
-			t.setLayoutY(counter);
-
-			
-			counter += 25;
-			
-		}
+		waypointArea = new Pane(waypointAreaGroup);
+		waypointArea.setPrefHeight(WAYPOINT_AREA_HEIGHT);
+		waypointArea.setPrefWidth(WAYPOINT_AREA_WIDTH);
 		/****************************************************/
 
-		
+
 		/**The area where the user can select which train they are adding waypoints for**/
 		trainRadioButtonsToggleGroup = new ToggleGroup();
 		trainRadioButtonsBox = new VBox(10);
@@ -337,11 +322,9 @@ public class TrainsGUI extends Application{
 
 			//When the delete button is clicked
 			deleteTrainButton.setOnAction(deleteEvent->{
-
 				//Remove the specified toggle
 				for(Toggle toggle: trainRadioButtonsToggleGroup.getToggles()){
 					RadioButton button = (RadioButton)toggle;
-
 					if(button.getId().equals(deleteTrainButton.getId())){
 						trainRadioButtonsToggleGroup.getToggles().remove(button);
 						break;
@@ -355,12 +338,11 @@ public class TrainsGUI extends Application{
 						break;
 					}
 				}
-				
+
 				//Go through and reset ID's of HBoxes and deleteTrainButtons
 				int newId = 1;
 				for(Node node: trainRadioButtonsBox.getChildren()){
 					HBox trainBox = (HBox)node;
-
 					trainBox.setId(Integer.toString(newId));
 					for(Node buttonBox: trainBox.getChildren()){
 						buttonBox.setId(Integer.toString(newId));
@@ -380,13 +362,12 @@ public class TrainsGUI extends Application{
 			trainRadioButtonsBox.getChildren().add(trainBox);
 		});
 
-
 		VBox trainPickArea = new VBox(20, addTrainButton, trainWaypointsScrollPane);
 		trainPickArea.setMinWidth(200);
 		trainPickArea.setStyle(selectionAreaStyle);
 
 		//The main HBox
-		HBox mainBottomArea = new HBox(waypointAreaPane, trainPickArea);
+		HBox mainBottomArea = new HBox(waypointArea, trainPickArea);
 		VBox scene2Main = new VBox(topButtons, mainBottomArea);
 
 		trainWaypointScene = new Scene(scene2Main,PROGRAM_WIDTH, PROGRAM_HEIGHT);
@@ -400,6 +381,53 @@ public class TrainsGUI extends Application{
 		primaryStage.show();
 		/******************************************************/
 	}
+
+	private void moveTracksToWaypointArea(){
+
+		//get the max x,y and min x,y coords so we can display the track in the new area
+		double minX = 0;
+		double maxX = 0;
+		double minY = 0;
+		double maxY = 0;
+		
+		//need to save the location of the tracks in the layout area
+		//before we can move to the waypoint area
+		trackLayoutAreaCoords.clear();
+		for(Track t: tracks){
+			trackLayoutAreaCoords.add(new Point2D(t.getLayoutX(), t.getLayoutY()));
+			
+			if(t.getLayoutX() < minX){
+				minX = t.getLayoutX();
+			}
+			
+			if(t.getLayoutX() > maxX){
+				maxX = t.getLayoutX();
+			}
+			
+			if(t.getLayoutY() < minY){
+				minY = t.getLayoutY();
+			}
+			
+			if(t.getLayoutY() > maxY){
+				maxY = t.getLayoutY();
+			}
+		}
+		
+		
+		waypointArea.getChildren().clear();
+		int counter = 25;
+
+		for(Track t: tracks){
+
+			//add the tracks to the pane	
+			waypointArea.getChildren().add(t);
+			t.setLayoutX(counter);
+			t.setLayoutY(counter);
+			counter += 25;
+		}
+	}
+
+	
 
 	public static void main(String[] args) {
 		launch(args);
