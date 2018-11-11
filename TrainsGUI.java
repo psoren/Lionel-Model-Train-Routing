@@ -17,7 +17,7 @@ public class TrainsGUI extends Application{
 
 	Scene trainWaypointScene;
 	Scene trackLayoutScene;
-	ToggleGroup trainRadioButtonGroup;
+	ToggleGroup trainRadioButtonsToggleGroup;
 	VBox trainRadioButtonsBox;
 
 	@Override
@@ -49,7 +49,6 @@ public class TrainsGUI extends Application{
 
 		/************Track Layout Area***********/
 		Group group = new Group();
-
 		Pane trackLayoutArea = new Pane(group);
 
 		trackLayoutArea.setOnMouseClicked(e->{
@@ -283,21 +282,38 @@ public class TrainsGUI extends Application{
 		HBox topButtons= new HBox(trackLayoutScreenButton);
 		topButtons.setAlignment(Pos.BASELINE_CENTER);
 
-		//The area where the user can click on and add waypoints
+		/**The area where the user can click on and add waypoints**/
 		Group waypointAreaGroup = new Group();
 		Pane waypointAreaPane = new Pane(waypointAreaGroup);
 		waypointAreaPane.setPrefHeight(WAYPOINT_AREA_HEIGHT);
 		waypointAreaPane.setPrefWidth(WAYPOINT_AREA_WIDTH);
 
 		//add the tracks to the pane
+		int counter = 25;
+		
+		System.out.println("In the second scene part");
+
+		
 		for(Track t: TrainsGUI.tracks){
 
-		}
+			System.out.println("there are " + TrainsGUI.tracks.size() + " tracks");
+			
+			
+			
+			t.setLayoutX(counter);
+			t.setLayoutY(counter);
 
-		/**The area where the user can select which train they are adding waypoints for**/
-		trainRadioButtonGroup = new ToggleGroup();
-		trainRadioButtonsBox = new VBox(10);
+			
+			counter += 25;
+			
+		}
+		/****************************************************/
+
 		
+		/**The area where the user can select which train they are adding waypoints for**/
+		trainRadioButtonsToggleGroup = new ToggleGroup();
+		trainRadioButtonsBox = new VBox(10);
+
 		ScrollPane trainWaypointsScrollPane = new ScrollPane();
 		trainWaypointsScrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		trainWaypointsScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -308,37 +324,66 @@ public class TrainsGUI extends Application{
 		//When clicked, this button will add a new train to the radioButtonGroup
 		Button addTrainButton = new Button("Add Train");
 		addTrainButton.setOnAction(e->{
-			int toggleGroupSize = trainRadioButtonGroup.getToggles().size() + 1;
-			
+			int trainNumber = trainRadioButtonsToggleGroup.getToggles().size() + 1;
+
 			//The train radio button
-			RadioButton newTrainButton = new RadioButton("Train " + toggleGroupSize);
-			newTrainButton.setToggleGroup(trainRadioButtonGroup);
-			
+			RadioButton newTrainButton = new RadioButton("Train " + trainNumber);
+			newTrainButton.setToggleGroup(trainRadioButtonsToggleGroup);
+			newTrainButton.setId(Integer.toString(trainNumber));
+
 			//The associated delete train button
 			Button deleteTrainButton = new Button("X");
-			
+			deleteTrainButton.setId(Integer.toString(trainNumber));
+
+			//When the delete button is clicked
+			deleteTrainButton.setOnAction(deleteEvent->{
+
+				//Remove the specified toggle
+				for(Toggle toggle: trainRadioButtonsToggleGroup.getToggles()){
+					RadioButton button = (RadioButton)toggle;
+
+					if(button.getId().equals(deleteTrainButton.getId())){
+						trainRadioButtonsToggleGroup.getToggles().remove(button);
+						break;
+					}
+				}
+
+				//Remove the specified train from the VBox
+				for(Node node: trainRadioButtonsBox.getChildren()){
+					if(node.getId().equals(deleteTrainButton.getId())){
+						trainRadioButtonsBox.getChildren().remove(node);
+						break;
+					}
+				}
+				
+				//Go through and reset ID's of HBoxes and deleteTrainButtons
+				int newId = 1;
+				for(Node node: trainRadioButtonsBox.getChildren()){
+					HBox trainBox = (HBox)node;
+
+					trainBox.setId(Integer.toString(newId));
+					for(Node buttonBox: trainBox.getChildren()){
+						buttonBox.setId(Integer.toString(newId));
+
+						if(buttonBox instanceof RadioButton){
+							((RadioButton)buttonBox).setText("Train " + newId);
+						}
+					}
+					newId++;
+				}
+			});
+
 			HBox trainBox = new HBox(10, newTrainButton, deleteTrainButton);
-			
+			trainBox.setId(Integer.toString(trainNumber));
+
 			//Add new radio button to VBox
 			trainRadioButtonsBox.getChildren().add(trainBox);
 		});
 
+
 		VBox trainPickArea = new VBox(20, addTrainButton, trainWaypointsScrollPane);
 		trainPickArea.setMinWidth(200);
 		trainPickArea.setStyle(selectionAreaStyle);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		//The main HBox
 		HBox mainBottomArea = new HBox(waypointAreaPane, trainPickArea);
