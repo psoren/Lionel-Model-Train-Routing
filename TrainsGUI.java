@@ -1,6 +1,9 @@
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javafx.application.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -12,7 +15,10 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.*;
+import javafx.scene.text.Text;
 import javafx.stage.*;
 
 public class TrainsGUI extends Application{
@@ -311,6 +317,14 @@ public class TrainsGUI extends Application{
 
 
 
+
+
+
+
+
+
+
+
 		/***************Second Scene********************/
 		Button trackLayoutScreenButton = new Button("Track Layout");
 		trackLayoutScreenButton.setOnAction(e->{
@@ -343,12 +357,11 @@ public class TrainsGUI extends Application{
 			Track t = Track.waypointAreaClicked(new Point2D(e.getX(), e.getY()));
 
 			if(t != null){
-				System.out.println("track" + t + " was clicked");
+				//System.out.println("track" + t + " was clicked");
 				if(trainRadioButtonsToggleGroup.getSelectedToggle() != null){
 
 					//The train that is selected
-					String stringId = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getId();
-					int id = new Integer(stringId);
+					int id = new Integer(((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getId());
 
 					//If this train already contains this track, do not add it.
 					//Otherwise, add it
@@ -357,12 +370,7 @@ public class TrainsGUI extends Application{
 					if(!selectedTrainTrackList.contains(t)){
 						selectedTrainTrackList.add(t);
 					}
-					
-					//Loop through list of tracks and draw circles on them
-					for(Track track: selectedTrainTrackList){
-						waypointArea.getChildren().add(new Circle(track.getLayoutX() + track.getWidth()/2, 
-								track.getLayoutY() + track.getHeight()/2, 20));
-					}	
+					drawCirclesOnTracks(trainWaypoints.get(id));
 				}		
 			}
 		});
@@ -372,32 +380,17 @@ public class TrainsGUI extends Application{
 		trainRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov,
 					Toggle toggle, Toggle new_toggle) {
-				if(new_toggle == null){
-					System.out.println("new toggle is null");
-				}
 				//Draw the circles on each of the tracks in the tracklist
-				else{					
+				if(new_toggle != null){					
 					waypointArea.getChildren().clear();
 					waypointArea.getChildren().addAll(tracks);
-					System.out.println("the current trains are:" + trainWaypoints);
+					//System.out.println("the current trains are:" + trainWaypoints);
 
-					String stringId = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getId();
-					int id = new Integer(stringId);
-
-					//Figure out how to get style of each
-					String style = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getStyle();
-
-					//for each track in the specified ID's trackList, draw a circle on that track
-
-					ArrayList<Track> idTrainTrackList = trainWaypoints.get(id);
-
-					for(Track t: idTrainTrackList){
-						waypointArea.getChildren().add(new Circle(t.getLayoutX() + t.getWidth()/2, t.getLayoutY() + t.getHeight()/2, 20));
-					}
+					int id = new Integer(((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getId());
+					drawCirclesOnTracks(trainWaypoints.get(id));
 				}       
 			}
 		});
-
 
 		ScrollPane trainWaypointsScrollPane = new ScrollPane();
 		trainWaypointsScrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
@@ -416,8 +409,10 @@ public class TrainsGUI extends Application{
 			newTrainRadioButton.setToggleGroup(trainRadioButtonsToggleGroup);
 			newTrainRadioButton.setId(Integer.toString(trainNumber));
 
+			newTrainRadioButton.setStyle(generateRandomColor());
+
 			newTrainRadioButton.setOnAction(radioBtnEvt->{
-				System.out.println("newtrainradiobutton "+ trainNumber +"was clicked");
+				//System.out.println("newtrainradiobutton "+ trainNumber +"was clicked");
 			});
 
 			ArrayList<Track> waypointTracks = new ArrayList<Track>();
@@ -474,7 +469,6 @@ public class TrainsGUI extends Application{
 				Iterator<Integer> iterator = trainWaypoints.keySet().iterator();
 				while(iterator.hasNext()){
 					int index = iterator.next();
-
 					if(index > indexToRemove){						
 						trainWaypoints.put(index-1, trainWaypoints.get(index));
 					}
@@ -484,7 +478,7 @@ public class TrainsGUI extends Application{
 			HBox trainBox = new HBox(10, newTrainRadioButton, deleteTrainButton);
 			trainBox.setId(Integer.toString(trainNumber));
 
-			trainBox.setStyle(generateRandomColor());
+			//trainBox.setStyle(generateRandomColor());
 			trainBox.setId(Integer.toString(trainNumber));
 
 			//Add new radio button to VBox
@@ -504,13 +498,13 @@ public class TrainsGUI extends Application{
 
 
 		/***************Final Stage Stuff**********************/
-
 		primaryStage.setTitle("Trains");
 		primaryStage.setScene(trackLayoutScene);
 		primaryStage.show();
 		/******************************************************/
 	}
 
+	//A method to generate a random color and return the css string
 	private String generateRandomColor(){
 		int r = (int)(Math.random()*255);
 		int g = (int)(Math.random()*255);
@@ -518,8 +512,23 @@ public class TrainsGUI extends Application{
 		return "-fx-background-color: rgb("+r+","+g+","+b+");";
 	}
 
-	private void moveTracksToWaypointArea(){
+	//A method to draw the correctly colored circles on tracks
+	private void drawCirclesOnTracks(ArrayList<Track> ts){
 
+		int counter = 1;
+		for(Track t: ts){
+			String buttonStyle = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getStyle();
+			Circle circ = new Circle(t.getLayoutX() + t.getWidth()/2, t.getLayoutY() + t.getHeight()/2, 20);
+			circ.setStyle("-fx-fill: " + buttonStyle.substring(22));
+			Text num = new Text(t.getLayoutX() + t.getWidth()/2, t.getLayoutY() + t.getHeight()/2, Integer.toString(counter));
+			String textStyle = "-fx-font: 20px Arial; -fx-stroke: white; -fx-stroke-width: 3;";
+			num.setStyle(textStyle);
+			waypointArea.getChildren().addAll(circ, num);
+			counter++;
+		}
+	}
+
+	private void moveTracksToWaypointArea(){
 		//Save location of tracks in layout area
 		//before moving to waypoint area
 		trackLayoutAreaCoords.clear();
