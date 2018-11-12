@@ -514,7 +514,6 @@ public class TrainsGUI extends Application{
 
 	//A method to draw the correctly colored circles on tracks
 	private void drawCirclesOnTracks(ArrayList<Track> ts){
-
 		int counter = 1;
 		for(Track t: ts){
 			String buttonStyle = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getStyle();
