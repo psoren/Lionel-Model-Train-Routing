@@ -1,6 +1,9 @@
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 import javafx.application.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.*;
@@ -9,6 +12,7 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.scene.shape.*;
 import javafx.stage.*;
 
 public class TrainsGUI extends Application{
@@ -17,6 +21,9 @@ public class TrainsGUI extends Application{
 
 	//The location of the tracks in the layout area
 	private ArrayList<Point2D> trackLayoutAreaCoords = new ArrayList<Point2D>();
+
+	//The list of tracks for each train
+	private ConcurrentHashMap<Integer, ArrayList<Track>> trainWaypoints = new ConcurrentHashMap<Integer, ArrayList<Track>>();
 
 	//Stuff for the waypoint scene
 	Scene trainWaypointScene;
@@ -269,11 +276,45 @@ public class TrainsGUI extends Application{
 		/****************************************************/
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		/***************Second Scene********************/
 		Button trackLayoutScreenButton = new Button("Track Layout");
 		trackLayoutScreenButton.setOnAction(e->{
 			primaryStage.setScene(trackLayoutScene);
-
 			trackLayoutArea.getChildren().clear();
 
 			//Set the location of the tracks to what they were previously	
@@ -287,17 +328,76 @@ public class TrainsGUI extends Application{
 		HBox topButtons= new HBox(trackLayoutScreenButton);
 		topButtons.setAlignment(Pos.BASELINE_CENTER);
 
+		/**The area where the user can select which train they are adding waypoints for**/
+		trainRadioButtonsToggleGroup = new ToggleGroup();
+		trainRadioButtonsBox = new VBox(10);
+
 		/**The area where the user can click on and add waypoints**/
 		Group waypointAreaGroup = new Group();
 		waypointArea = new Pane(waypointAreaGroup);
 		waypointArea.setPrefHeight(WAYPOINT_AREA_HEIGHT);
 		waypointArea.setPrefWidth(WAYPOINT_AREA_WIDTH);
+
+		//How to add the tracks to the respective train track lists
+		waypointArea.setOnMouseClicked(e->{
+			Track t = Track.waypointAreaClicked(new Point2D(e.getX(), e.getY()));
+
+			if(t != null){
+				System.out.println("track" + t + " was clicked");
+				if(trainRadioButtonsToggleGroup.getSelectedToggle() != null){
+
+					//The train that is selected
+					String stringId = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getId();
+					int id = new Integer(stringId);
+
+					//If this train already contains this track, do not add it.
+					//Otherwise, add it
+					ArrayList<Track> selectedTrainTrackList = trainWaypoints.get(id);
+
+					if(!selectedTrainTrackList.contains(t)){
+						selectedTrainTrackList.add(t);
+					}
+					
+					//Loop through list of tracks and draw circles on them
+					for(Track track: selectedTrainTrackList){
+						waypointArea.getChildren().add(new Circle(track.getLayoutX() + track.getWidth()/2, 
+								track.getLayoutY() + track.getHeight()/2, 20));
+					}	
+				}		
+			}
+		});
 		/****************************************************/
 
+		//whenever the selected radio button changes, this event will be called		
+		trainRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+			public void changed(ObservableValue<? extends Toggle> ov,
+					Toggle toggle, Toggle new_toggle) {
+				if(new_toggle == null){
+					System.out.println("new toggle is null");
+				}
+				//Draw the circles on each of the tracks in the tracklist
+				else{					
+					waypointArea.getChildren().clear();
+					waypointArea.getChildren().addAll(tracks);
+					System.out.println("the current trains are:" + trainWaypoints);
 
-		/**The area where the user can select which train they are adding waypoints for**/
-		trainRadioButtonsToggleGroup = new ToggleGroup();
-		trainRadioButtonsBox = new VBox(10);
+					String stringId = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getId();
+					int id = new Integer(stringId);
+
+					//Figure out how to get style of each
+					String style = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getStyle();
+
+					//for each track in the specified ID's trackList, draw a circle on that track
+
+					ArrayList<Track> idTrainTrackList = trainWaypoints.get(id);
+
+					for(Track t: idTrainTrackList){
+						waypointArea.getChildren().add(new Circle(t.getLayoutX() + t.getWidth()/2, t.getLayoutY() + t.getHeight()/2, 20));
+					}
+				}       
+			}
+		});
+
 
 		ScrollPane trainWaypointsScrollPane = new ScrollPane();
 		trainWaypointsScrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
@@ -309,12 +409,19 @@ public class TrainsGUI extends Application{
 		//When clicked, this button will add a new train to the radioButtonGroup
 		Button addTrainButton = new Button("Add Train");
 		addTrainButton.setOnAction(e->{
-			int trainNumber = trainRadioButtonsToggleGroup.getToggles().size() + 1;
+			int trainNumber = trainRadioButtonsToggleGroup.getToggles().size();
 
 			//The train radio button
-			RadioButton newTrainButton = new RadioButton("Train " + trainNumber);
-			newTrainButton.setToggleGroup(trainRadioButtonsToggleGroup);
-			newTrainButton.setId(Integer.toString(trainNumber));
+			RadioButton newTrainRadioButton = new RadioButton("Train " + trainNumber);
+			newTrainRadioButton.setToggleGroup(trainRadioButtonsToggleGroup);
+			newTrainRadioButton.setId(Integer.toString(trainNumber));
+
+			newTrainRadioButton.setOnAction(radioBtnEvt->{
+				System.out.println("newtrainradiobutton "+ trainNumber +"was clicked");
+			});
+
+			ArrayList<Track> waypointTracks = new ArrayList<Track>();
+			trainWaypoints.put(trainNumber, waypointTracks);
 
 			//The associated delete train button
 			Button deleteTrainButton = new Button("X");
@@ -322,6 +429,7 @@ public class TrainsGUI extends Application{
 
 			//When the delete button is clicked
 			deleteTrainButton.setOnAction(deleteEvent->{
+
 				//Remove the specified toggle
 				for(Toggle toggle: trainRadioButtonsToggleGroup.getToggles()){
 					RadioButton button = (RadioButton)toggle;
@@ -340,7 +448,7 @@ public class TrainsGUI extends Application{
 				}
 
 				//Go through and reset IDs of HBoxes and deleteTrainButtons
-				int newId = 1;
+				int newId = 0;
 				for(Node node: trainRadioButtonsBox.getChildren()){
 					HBox trainBox = (HBox)node;
 					trainBox.setId(Integer.toString(newId));
@@ -352,9 +460,29 @@ public class TrainsGUI extends Application{
 					}
 					newId++;
 				}
+
+				//Shift the indices of trainWaypoints down by 1
+				int indexToRemove = new Integer(deleteTrainButton.getId());
+				//System.out.println("index of train to remove: " + indexOfTrainToRemove);
+
+				//Remove the track at the specified index
+				trainWaypoints.remove(indexToRemove);
+
+				//We now need to re-index trainWaypoints so that
+				//the indices are 0,1,2,3,... as in the rest
+				//of the program				
+				Iterator<Integer> iterator = trainWaypoints.keySet().iterator();
+				while(iterator.hasNext()){
+					int index = iterator.next();
+
+					if(index > indexToRemove){						
+						trainWaypoints.put(index-1, trainWaypoints.get(index));
+					}
+				}
 			});
 
-			HBox trainBox = new HBox(10, newTrainButton, deleteTrainButton);
+			HBox trainBox = new HBox(10, newTrainRadioButton, deleteTrainButton);
+			trainBox.setId(Integer.toString(trainNumber));
 
 			trainBox.setStyle(generateRandomColor());
 			trainBox.setId(Integer.toString(trainNumber));

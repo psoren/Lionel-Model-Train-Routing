@@ -305,22 +305,33 @@ public abstract class Track extends StackPane{
 			MenuItem item = list.get(i);
 			if(item.getId().equals("disconnect")){
 				item.setDisable(false);
-			}	
+			}
 		}	
 	}
 
 	//When the user clicks the layoutArea, this method is called
-	public static void layoutAreaClicked(Point2D p){
+	public static void layoutAreaClicked(Point2D p){		
 		for(Track t: TrainsGUI.tracks){
 			if(t.contains(t.parentToLocal(p))){
 				return;
 			}
 		}
-		//if click not on top of track
+		//If click not on top of track
 		if(Track.selected != null){
 			Track.selected.setStyle(unselectedStyle);
 			Track.selected = null;
 		}	
+	}
+	
+	//This method will be called when the waypoint area is clicked
+	//so that we can add that track to that train's waypoint list
+	public static Track waypointAreaClicked(Point2D p){
+		for(Track t: TrainsGUI.tracks){
+			if(t.contains(t.parentToLocal(p))){
+				return t;
+			}
+		}
+		return null;
 	}
 
 	public static void generateGraph(){
