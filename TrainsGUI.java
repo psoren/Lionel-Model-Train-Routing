@@ -28,10 +28,15 @@ public class TrainsGUI extends Application{
 	//Stuff for the waypoint scene
 	Scene trainWaypointScene;
 	Scene trackLayoutScene;
+	Scene matchingSensorScene;
 	ToggleGroup trainRadioButtonsToggleGroup;
 	VBox trainRadioButtonsBox;
+	
 	Pane waypointArea;
-
+	Pane matchingSensorsArea;
+	ToggleGroup sensorRadioButtonsToggleGroup;
+	VBox sensorRadioButtonsBox;
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception{
 
@@ -276,7 +281,7 @@ public class TrainsGUI extends Application{
 		/****************************************************/
 
 
-		/***************Second Scene********************/
+		/***************Train Waypoint Scene********************/
 		Button trackLayoutScreenButton = new Button("Track Layout");
 		trackLayoutScreenButton.setOnAction(e->{
 			primaryStage.setScene(trackLayoutScene);
@@ -289,8 +294,13 @@ public class TrainsGUI extends Application{
 				trackLayoutArea.getChildren().add(tracks.get(i));
 			}
 		});
-
-		HBox topButtons= new HBox(trackLayoutScreenButton);
+		
+		Button matchSensorsButton = new Button("Match Sensors");
+		matchSensorsButton.setOnAction(e->{
+			primaryStage.setScene(matchingSensorScene);
+		});
+		
+		HBox topButtons= new HBox(trackLayoutScreenButton, matchSensorsButton);
 		topButtons.setAlignment(Pos.BASELINE_CENTER);
 
 		/**The area where the user can select which train they are adding waypoints for**/
@@ -447,6 +457,116 @@ public class TrainsGUI extends Application{
 		trainWaypointScene = new Scene(scene2Main,PROGRAM_WIDTH, PROGRAM_HEIGHT);
 		/****************************************************/
 
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+		/***************Matching Sensor Scene Stuff**********************/
+		
+		//The button to go back to the train waypoint scene
+		Button matchingSensorsToTrainWaypointButton = new Button("Train Waypoints");
+		matchingSensorsToTrainWaypointButton.setOnAction(e->{
+			primaryStage.setScene(trainWaypointScene);
+		});
+		HBox topSensorButtons= new HBox(matchingSensorsToTrainWaypointButton);
+		topSensorButtons.setAlignment(Pos.BASELINE_CENTER);
+		
+		
+		
+		/**The area where the user can match sensors**/
+		Group matchingSensorsGroup = new Group();
+		matchingSensorsArea = new Pane(matchingSensorsGroup);
+		matchingSensorsArea.setPrefHeight(WAYPOINT_AREA_HEIGHT);
+		matchingSensorsArea.setPrefWidth(WAYPOINT_AREA_WIDTH);
+		/******************************************************/
+
+		
+		
+		
+		/**The list of sensors that you can click on to match up the sensors**/
+		sensorRadioButtonsToggleGroup = new ToggleGroup();
+		sensorRadioButtonsBox = new VBox(10);
+		
+		//Whenever the selected radio button changes, this event will be called		
+		sensorRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
+				if(new_toggle != null){					
+					System.out.println("The selected sensor was changed");
+				}       
+			}
+		});
+		
+		//Finish setting up this layout and make sure we can send sensor stuff to the wifi module
+		
+		//There are 6 sensors and one switch
+		//The command to get all of the connected sensors/tracks:
+		//(0x01 - PDI_CMD_ALLGET)
+		//(0x04 - ACTION_INFO)
+		//D1 01 00 04 FB DF
+		//The sensor information that we get back is in the form
+		//D1 23 0B 04 11 01 01 72 3A DF
+		//in this case sensor 11 (because 0B)
+		
+		//The commands to identify sensors
+		//You can just click on the sensor button at the top
+		//which opens the sensor screen and then click identify
+		//The command to identify sensor 12: D1 31 0C 06 BD DF
+		//The command to identify sensor 15: D1 31 0F 06 BD DF
+
+		ScrollPane sensorList = new ScrollPane();
+		sensorList.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+		sensorList.setHbarPolicy(ScrollBarPolicy.NEVER);
+		sensorList.setContent(sensorRadioButtonsBox);
+		sensorList.setMaxHeight(300);
+		sensorList.setMinWidth(SELECTION_AREA_WIDTH);
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		//Final setup stuff
+		HBox mainMatchingSensors = new HBox(20, matchingSensorsArea, sensorList); 
+		VBox matchingSensorMainHBox = new VBox(topSensorButtons, mainMatchingSensors);
+		matchingSensorScene = new Scene(matchingSensorMainHBox, PROGRAM_WIDTH, PROGRAM_HEIGHT);
+		/******************************************************/
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 		/***************Final Stage Stuff**********************/
 		primaryStage.setTitle("Trains");
@@ -475,6 +595,12 @@ public class TrainsGUI extends Application{
 			num.setStyle(textStyle);
 			waypointArea.getChildren().addAll(circ, num);
 			counter++;
+		}
+	}
+	
+	private void moveTracksToMatchingSensorsArea(){
+		for(Track t: tracks){
+			matchingSensorsArea.getChildren().add(t);
 		}
 	}
 
