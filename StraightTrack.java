@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import javafx.geometry.Point2D;
 
 public class StraightTrack extends Track{
+	
 	public StraightTrack(int x, int y, String imgSrc) throws FileNotFoundException{
 		super(x,y,imgSrc);
 		this.setHeight(50);
@@ -10,6 +11,7 @@ public class StraightTrack extends Track{
 		this.numRotations = 12;
 		this.frontOrientation = 0;
 		this.backOrientation = 0;
+		this.length = 10;
 	}
 	
 	@Override

@@ -20,6 +20,7 @@ public class SwitchLeftTrack extends Track{
 		this.backOrientation = 0;
 		this.sideOrientation = 330;
 		this.sideTrack = null;
+		this.length = 15;
 	}	
 
 	@Override

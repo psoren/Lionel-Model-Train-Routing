@@ -1,9 +1,9 @@
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
-public class TrainWaypointScene extends Scene{
+public class TrainWaypointSceneCreator extends Scene{
 
-	public TrainWaypointScene(Parent root) {
+	public TrainWaypointSceneCreator(Parent root) {
 		super(root);
 		// TODO Auto-generated constructor stub
 	}

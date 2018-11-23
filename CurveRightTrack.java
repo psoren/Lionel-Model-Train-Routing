@@ -10,6 +10,7 @@ public class CurveRightTrack extends Track{
 		this.numRotations = 12;
 		this.frontOrientation = 30;
 		this.backOrientation = 0;
+		this.length = 15;
 	}	
 	
 	@Override

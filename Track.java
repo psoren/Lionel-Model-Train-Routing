@@ -28,6 +28,9 @@ public abstract class Track extends StackPane{
 	/**Non-static fields**/
 	//The number of rotations for a track to be back at the same position
 	protected int numRotations;
+	
+	//The length of this track in inches
+	protected int length;
 
 	//The track in front of this track
 	private Track frontTrack;
@@ -46,7 +49,7 @@ public abstract class Track extends StackPane{
 
 	//The context menu for this track
 	private ContextMenu contextMenu;
-
+	
 	/**
 	 * @param x: the x coordinate of the image
 	 * @param y: the y coordinate of the image

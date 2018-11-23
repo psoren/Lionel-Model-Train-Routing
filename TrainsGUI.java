@@ -1,4 +1,3 @@
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import javafx.application.*;
@@ -8,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.*;
@@ -16,12 +14,16 @@ import javafx.scene.text.Text;
 import javafx.stage.*;
 
 public class TrainsGUI extends Application{
-
-	public static ArrayList<Track> tracks = new ArrayList<Track>();
+	
+	String selectionAreaStyle = "-fx-border-color: black;" +
+			"-fx-border-width: 1;" +
+			"-fx-border-style: solid;";
 
 	//The location of the tracks in the layout area
 	private ArrayList<Point2D> trackLayoutAreaCoords = new ArrayList<Point2D>();
 
+	public static ArrayList<Track> tracks = new ArrayList<Track>();
+	
 	//The list of tracks for each train
 	private ConcurrentHashMap<Integer, ArrayList<Track>> trainWaypoints = new ConcurrentHashMap<Integer, ArrayList<Track>>();
 
@@ -29,245 +31,43 @@ public class TrainsGUI extends Application{
 	Scene trainWaypointScene;
 	Scene trackLayoutScene;
 	Scene matchingSensorScene;
+
+
 	ToggleGroup trainRadioButtonsToggleGroup;
 	VBox trainRadioButtonsBox;
-	
+
 	Pane waypointArea;
 	Pane matchingSensorsArea;
 	ToggleGroup sensorRadioButtonsToggleGroup;
 	VBox sensorRadioButtonsBox;
-	
+
+	Stage mainStage;
+
 	@Override
 	public void start(Stage primaryStage) throws Exception{
+
+		mainStage = primaryStage;
 
 		/************Constants***********/
 		final double PROGRAM_HEIGHT = 600;
 		final double PROGRAM_WIDTH = 1200;
 
-		final double SELECTION_AREA_HEIGHT = PROGRAM_HEIGHT;
 		final double SELECTION_AREA_WIDTH = (int)0.2*PROGRAM_WIDTH;
-
-		final double LAYOUT_AREA_HEIGHT = PROGRAM_HEIGHT;
-		final double LAYOUT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
 
 		final double WAYPOINT_AREA_HEIGHT = PROGRAM_HEIGHT;
 		final double WAYPOINT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
-
-		final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
-
-		final String STRAIGHT_IMG = "straight.png";
-		final String SENSOR_IMG = "sensor.png";
-		final String SWITCHRIGHT_IMG = "switchRight.png";
-		final String SWITCHLEFT_IMG = "switchLeft.png";
-		final String CURVERIGHT_IMG = "curveRight.png";
-		final String CURVELEFT_IMG = "curveLeft.png";
 		/****************************************/
 
-
-		/************Track Layout Area***********/
-		Group group = new Group();
-		Pane trackLayoutArea = new Pane(group);
-
-		trackLayoutArea.setOnMouseClicked(e->{
-			Track.layoutAreaClicked(new Point2D(e.getX(), e.getY()));
-		});
-
-		trackLayoutArea.setPrefHeight(LAYOUT_AREA_HEIGHT);
-		trackLayoutArea.setPrefWidth(LAYOUT_AREA_WIDTH);
-		/****************************************/
-
-
-		/************Track Selection Area***********/
-		Image straight = new Image(BASE + STRAIGHT_IMG);		
-		ImageView straightImgVw = new ImageView(straight);
-
-		straightImgVw.setFitHeight(50);
-		straightImgVw.setFitWidth(100);
-
-		Image sensor = new Image(BASE + SENSOR_IMG);
-		ImageView sensorImgVw = new ImageView(sensor);
-		sensorImgVw.setFitHeight(55);
-		sensorImgVw.setFitWidth(50);
-
-		Image switchRight = new Image(BASE + SWITCHRIGHT_IMG);
-		ImageView switchRightVw = new ImageView(switchRight);
-		switchRightVw.setFitHeight(60);
-		switchRightVw.setFitWidth(100);
-
-		Image switchLeft = new Image(BASE + SWITCHLEFT_IMG);
-		ImageView switchLeftVw = new ImageView(switchLeft);
-		switchLeftVw.setFitHeight(60);
-		switchLeftVw.setFitWidth(100);
-
-		Image curveRight = new Image(BASE + CURVERIGHT_IMG);
-		ImageView curveRightVw = new ImageView(curveRight);
-		curveRightVw.setFitHeight(60);
-		curveRightVw.setFitWidth(100);
-
-		Image curveLeft = new Image(BASE + CURVELEFT_IMG);
-		ImageView curveLeftVw = new ImageView(curveLeft);
-		curveLeftVw.setFitHeight(60);
-		curveLeftVw.setFitWidth(100);
-
-		/****************************************/
-
-
-		/************Drag-and-drop implementation***********/
-		//Define drag and drop controls from the each imageView to the selection area
-		straightImgVw.setOnDragDetected(e->{			
-			Dragboard db = straightImgVw.startDragAndDrop(TransferMode.ANY);
-			ClipboardContent content = new ClipboardContent();
-			content.putImage(straight);
-			content.putString("straight");
-			db.setContent(content);
-			e.consume();
-		});
-
-		sensorImgVw.setOnDragDetected(e->{
-			Dragboard db = sensorImgVw.startDragAndDrop(TransferMode.ANY);
-			ClipboardContent content = new ClipboardContent();
-			content.putImage(sensor);
-			content.putString("sensor");
-			db.setContent(content);
-			e.consume();
-		});
-
-		switchRightVw.setOnDragDetected(e->{
-			Dragboard db = switchRightVw.startDragAndDrop(TransferMode.ANY);
-			ClipboardContent content = new ClipboardContent();
-			content.putImage(switchRight);
-			content.putString("switchRight");
-			db.setContent(content);
-			e.consume();
-		});
-
-		switchLeftVw.setOnDragDetected(e->{
-			Dragboard db = switchLeftVw.startDragAndDrop(TransferMode.ANY);
-			ClipboardContent content = new ClipboardContent();
-			content.putImage(switchLeft);
-			content.putString("switchLeft");
-			db.setContent(content);
-			e.consume();
-		});
-
-		curveRightVw.setOnDragDetected(e->{
-			Dragboard db = curveRightVw.startDragAndDrop(TransferMode.ANY);
-			ClipboardContent content = new ClipboardContent();
-			content.putImage(curveRight);
-			content.putString("curveRight");
-			db.setContent(content);
-			e.consume();
-		});
-
-		curveLeftVw.setOnDragDetected(e->{
-			Dragboard db = curveLeftVw.startDragAndDrop(TransferMode.ANY);
-			ClipboardContent content = new ClipboardContent();
-			content.putImage(curveLeft);
-			content.putString("curveLeft");
-			db.setContent(content);
-			e.consume();
-		});
-
-		trackLayoutArea.setOnDragOver(e->{
-			if (e.getGestureSource() != trackLayoutArea &&
-					e.getDragboard().hasImage()) {
-				e.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-			}
-			e.consume();
-		});
-
-		trackLayoutArea.setOnDragDropped(e-> {
-			Dragboard db = e.getDragboard();
-			boolean success = false;
-			if(db.hasImage() && db.hasString()){
-
-				//Create a new track based on the string contained in the dragBoard
-				String trackName = db.getString();
-				Track track = null;
-				try{
-					if(trackName.equals("straight")){
-						track = new StraightTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + STRAIGHT_IMG);
-					}
-					else if(trackName.equals("sensor")){
-						track = new SensorTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + SENSOR_IMG);
-					}
-					else if(trackName.equals("switchRight")){
-						track = new SwitchRightTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + SWITCHRIGHT_IMG);
-					}
-					else if(trackName.equals("switchLeft")){
-						track = new SwitchLeftTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + SWITCHLEFT_IMG);
-					}
-					else if(trackName.equals("curveRight")){
-						track = new CurveRightTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + CURVERIGHT_IMG);
-					}
-					else if(trackName.equals("curveLeft")){
-						track = new CurveLeftTrack((int)e.getSceneX(), (int)e.getSceneY(), BASE + CURVELEFT_IMG);
-					}
-				}
-				catch(FileNotFoundException err){
-					err.printStackTrace();
-				}
-				//Shift to account for width and height of track
-				track.setLayoutX(track.getLayoutX() - track.getWidth()/2);
-				track.setLayoutY(track.getLayoutY() - track.getHeight()/2);
-
-				tracks.add(track);
-				trackLayoutArea.getChildren().add(track);
-				success = true;
-			}
-			e.setDropCompleted(success);
-			e.consume();
-		});
-		/****************************************/
-
-		/*************Organization of selection area************/
-		VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveRightVw, curveLeftVw);
-
-		ScrollPane trackSelectionArea = new ScrollPane();
-		trackSelectionArea.setVbarPolicy(ScrollBarPolicy.ALWAYS);
-		trackSelectionArea.setHbarPolicy(ScrollBarPolicy.NEVER);
-		trackSelectionArea.setContent(vbox);
-		trackSelectionArea.setMinHeight(SELECTION_AREA_HEIGHT);
-		trackSelectionArea.setMinWidth(SELECTION_AREA_WIDTH);
-
-		String selectionAreaStyle = "-fx-border-color: black;" +
-				"-fx-border-width: 1;" +
-				"-fx-border-style: solid;";
-		trackSelectionArea.setStyle(selectionAreaStyle);
-		/****************************************/
-
-		//Button to remove the selected track
-		Button removeButton = new Button("Remove Track");
-		removeButton.setOnAction(e->{
-			if(tracks.size() >= 1 && Track.selected != null){
-				Track.selected.unlockConnectedTracks();
-				tracks.remove(Track.selected);				
-				trackLayoutArea.getChildren().clear();
-				trackLayoutArea.getChildren().addAll(tracks);
-			}
-		});
-
-		//Button to remove all tracks
-		Button removeAllButton = new Button("Remove All Tracks");
-		removeAllButton.setOnAction(e->{
-			tracks.clear();
-			trackLayoutArea.getChildren().clear();
-			trackLayoutArea.getChildren().addAll(tracks);
-		});
-
+		TrackLayoutSceneCreator trackLayoutSceneGroup = new TrackLayoutSceneCreator();
+		
 		Button trainWaypointSceneButton = new Button("Train Waypoints");
 		trainWaypointSceneButton.setOnAction(e->{
-			primaryStage.setScene(trainWaypointScene);
-			moveTracksToWaypointArea();
+			mainStage.setScene(trainWaypointScene);
+			moveTracksToWaypointArea(tracks);
 		});
-		/*****************Layout Organization****************/
 
-		VBox buttons = new VBox(25, removeButton, removeAllButton, trainWaypointSceneButton);
-		trackLayoutArea.setMaxWidth(900);
-		HBox hbox = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);
-		Group root = new Group(hbox);
-
-		trackLayoutScene = new Scene(root, PROGRAM_WIDTH, PROGRAM_HEIGHT);
+		trackLayoutScene = new Scene(trackLayoutSceneGroup.newTrackLayoutScene(trainWaypointSceneButton, tracks), 
+				PROGRAM_WIDTH, PROGRAM_HEIGHT);
 		trackLayoutScene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
 			if(Track.selected != null){
 				if(e.getCode()==KeyCode.LEFT){
@@ -278,28 +78,28 @@ public class TrainsGUI extends Application{
 				}
 			}
 		});
-		/****************************************************/
 
+		/****************************************************/
 
 		/***************Train Waypoint Scene********************/
 		Button trackLayoutScreenButton = new Button("Track Layout");
 		trackLayoutScreenButton.setOnAction(e->{
-			primaryStage.setScene(trackLayoutScene);
-			trackLayoutArea.getChildren().clear();
+			mainStage.setScene(trackLayoutScene);
+			trackLayoutSceneGroup.trackLayoutArea.getChildren().clear();
 
 			//Set the location of the tracks to what they were previously	
 			for(int i = 0; i < tracks.size(); i++){
 				tracks.get(i).setLayoutX(trackLayoutAreaCoords.get(i).getX());
 				tracks.get(i).setLayoutY(trackLayoutAreaCoords.get(i).getY());
-				trackLayoutArea.getChildren().add(tracks.get(i));
+				trackLayoutSceneGroup.trackLayoutArea.getChildren().add(tracks.get(i));
 			}
 		});
-		
+
 		Button matchSensorsButton = new Button("Match Sensors");
 		matchSensorsButton.setOnAction(e->{
-			primaryStage.setScene(matchingSensorScene);
+			mainStage.setScene(matchingSensorScene);
 		});
-		
+
 		HBox topButtons= new HBox(trackLayoutScreenButton, matchSensorsButton);
 		topButtons.setAlignment(Pos.BASELINE_CENTER);
 
@@ -357,8 +157,8 @@ public class TrainsGUI extends Application{
 		trainWaypointsScrollPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		trainWaypointsScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
 		trainWaypointsScrollPane.setContent(trainRadioButtonsBox);
-		trackSelectionArea.setMaxHeight(300);
-		trackSelectionArea.setMinWidth(SELECTION_AREA_WIDTH);
+		trackLayoutSceneGroup.trackSelectionArea.setMaxHeight(300);
+		trackLayoutSceneGroup.trackSelectionArea.setMinWidth(SELECTION_AREA_WIDTH);
 
 		//When clicked, this button will add a new train to the radioButtonGroup
 		Button addTrainButton = new Button("Add Train");
@@ -457,31 +257,25 @@ public class TrainsGUI extends Application{
 		trainWaypointScene = new Scene(scene2Main,PROGRAM_WIDTH, PROGRAM_HEIGHT);
 		/****************************************************/
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
 
 		/***************Matching Sensor Scene Stuff**********************/
-		
+
 		//The button to go back to the train waypoint scene
 		Button matchingSensorsToTrainWaypointButton = new Button("Train Waypoints");
 		matchingSensorsToTrainWaypointButton.setOnAction(e->{
-			primaryStage.setScene(trainWaypointScene);
+			mainStage.setScene(trainWaypointScene);
 		});
 		HBox topSensorButtons= new HBox(matchingSensorsToTrainWaypointButton);
 		topSensorButtons.setAlignment(Pos.BASELINE_CENTER);
-		
-		
-		
+
+
+
 		/**The area where the user can match sensors**/
 		Group matchingSensorsGroup = new Group();
 		matchingSensorsArea = new Pane(matchingSensorsGroup);
@@ -489,13 +283,13 @@ public class TrainsGUI extends Application{
 		matchingSensorsArea.setPrefWidth(WAYPOINT_AREA_WIDTH);
 		/******************************************************/
 
-		
-		
-		
+
+
+
 		/**The list of sensors that you can click on to match up the sensors**/
 		sensorRadioButtonsToggleGroup = new ToggleGroup();
 		sensorRadioButtonsBox = new VBox(10);
-		
+
 		//Whenever the selected radio button changes, this event will be called		
 		sensorRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
@@ -504,9 +298,9 @@ public class TrainsGUI extends Application{
 				}       
 			}
 		});
-		
+
 		//Finish setting up this layout and make sure we can send sensor stuff to the wifi module
-		
+
 		//There are 6 sensors and one switch
 		//The command to get all of the connected sensors/tracks:
 		//(0x01 - PDI_CMD_ALLGET)
@@ -515,7 +309,7 @@ public class TrainsGUI extends Application{
 		//The sensor information that we get back is in the form
 		//D1 23 0B 04 11 01 01 72 3A DF
 		//in this case sensor 11 (because 0B)
-		
+
 		//The commands to identify sensors
 		//You can just click on the sensor button at the top
 		//which opens the sensor screen and then click identify
@@ -529,49 +323,49 @@ public class TrainsGUI extends Application{
 		sensorList.setMaxHeight(300);
 		sensorList.setMinWidth(SELECTION_AREA_WIDTH);
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
+
+
 		//Final setup stuff
 		HBox mainMatchingSensors = new HBox(20, matchingSensorsArea, sensorList); 
 		VBox matchingSensorMainHBox = new VBox(topSensorButtons, mainMatchingSensors);
 		matchingSensorScene = new Scene(matchingSensorMainHBox, PROGRAM_WIDTH, PROGRAM_HEIGHT);
 		/******************************************************/
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		/***************Final Stage Stuff**********************/
-		primaryStage.setTitle("Trains");
-		primaryStage.setScene(trackLayoutScene);
-		primaryStage.show();
+		mainStage.setTitle("Trains");
+		mainStage.setScene(trackLayoutScene);
+		mainStage.show();
 		/******************************************************/
 	}
 
@@ -597,14 +391,14 @@ public class TrainsGUI extends Application{
 			counter++;
 		}
 	}
-	
-	private void moveTracksToMatchingSensorsArea(){
+
+	private void moveTracksToMatchingSensorsArea(ArrayList<Track> tracks){
 		for(Track t: tracks){
 			matchingSensorsArea.getChildren().add(t);
 		}
 	}
 
-	private void moveTracksToWaypointArea(){
+	private void moveTracksToWaypointArea(ArrayList<Track> tracks){
 		//Save location of tracks in layout area
 		//before moving to waypoint area
 		trackLayoutAreaCoords.clear();
