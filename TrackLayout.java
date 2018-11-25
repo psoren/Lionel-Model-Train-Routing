@@ -1,7 +1,9 @@
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -9,13 +11,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
-public class TrackLayoutSceneCreator {
-
+public class TrackLayout{
+	
 	public Pane trackLayoutArea;
 	public ScrollPane trackSelectionArea;
 	
@@ -23,7 +27,7 @@ public class TrackLayoutSceneCreator {
 			"-fx-border-width: 1;" +
 			"-fx-border-style: solid;";
 	
-	public Group newTrackLayoutScene(Button waypointSceneButton, ArrayList<Track> tracks){
+	public Scene getScene(Button waypointButton, ArrayList<Track> tracks) throws Exception{
 
 		final double PROGRAM_HEIGHT = 600;
 		final double PROGRAM_WIDTH = 1200;
@@ -34,8 +38,12 @@ public class TrackLayoutSceneCreator {
 		final double LAYOUT_AREA_HEIGHT = PROGRAM_HEIGHT;
 		final double LAYOUT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
 
-		final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
-
+		
+		//if source is online, change how we access the pictures
+		//final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
+		final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
+		
+		
 		final String STRAIGHT_IMG = "straight.png";
 		final String SENSOR_IMG = "sensor.png";
 		final String SWITCHRIGHT_IMG = "switchRight.png";
@@ -59,33 +67,41 @@ public class TrackLayoutSceneCreator {
 
 
 		/************Track Selection Area***********/
-		Image straight = new Image(BASE + STRAIGHT_IMG);		
+		
+		FileInputStream straightStream = new FileInputStream(BASE + STRAIGHT_IMG);
+		Image straight = new Image(straightStream);		
 		ImageView straightImgVw = new ImageView(straight);
-
 		straightImgVw.setFitHeight(50);
 		straightImgVw.setFitWidth(100);
 
-		Image sensor = new Image(BASE + SENSOR_IMG);
+		FileInputStream sensorStream = new FileInputStream(BASE + SENSOR_IMG);
+		Image sensor = new Image(sensorStream);
 		ImageView sensorImgVw = new ImageView(sensor);
 		sensorImgVw.setFitHeight(55);
 		sensorImgVw.setFitWidth(50);
 
-		Image switchRight = new Image(BASE + SWITCHRIGHT_IMG);
+		
+		FileInputStream srStream = new FileInputStream(BASE + SWITCHRIGHT_IMG);
+		Image switchRight = new Image(srStream);
 		ImageView switchRightVw = new ImageView(switchRight);
 		switchRightVw.setFitHeight(60);
 		switchRightVw.setFitWidth(100);
 
-		Image switchLeft = new Image(BASE + SWITCHLEFT_IMG);
+		FileInputStream slStream = new FileInputStream(BASE + SWITCHLEFT_IMG);
+		Image switchLeft = new Image(slStream);
 		ImageView switchLeftVw = new ImageView(switchLeft);
 		switchLeftVw.setFitHeight(60);
 		switchLeftVw.setFitWidth(100);
 
-		Image curveRight = new Image(BASE + CURVERIGHT_IMG);
+		
+		FileInputStream crStream = new FileInputStream(BASE + CURVERIGHT_IMG);
+		Image curveRight = new Image(crStream);
 		ImageView curveRightVw = new ImageView(curveRight);
 		curveRightVw.setFitHeight(60);
 		curveRightVw.setFitWidth(100);
 
-		Image curveLeft = new Image(BASE + CURVELEFT_IMG);
+		FileInputStream clStream = new FileInputStream(BASE + CURVELEFT_IMG);
+		Image curveLeft = new Image(clStream);
 		ImageView curveLeftVw = new ImageView(curveLeft);
 		curveLeftVw.setFitHeight(60);
 		curveLeftVw.setFitWidth(100);
@@ -94,7 +110,6 @@ public class TrackLayoutSceneCreator {
 
 
 		/************Drag-and-drop implementation***********/
-		//Define drag and drop controls from the each imageView to the selection area
 		straightImgVw.setOnDragDetected(e->{			
 			Dragboard db = straightImgVw.startDragAndDrop(TransferMode.ANY);
 			ClipboardContent content = new ClipboardContent();
@@ -203,7 +218,7 @@ public class TrackLayoutSceneCreator {
 
 		/*************Organization of selection area************/
 		VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveRightVw, curveLeftVw);
-
+		
 		trackSelectionArea = new ScrollPane();
 		trackSelectionArea.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		trackSelectionArea.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -233,16 +248,21 @@ public class TrackLayoutSceneCreator {
 		});
 		/*****************Layout Organization****************/
 
-		VBox buttons = new VBox(25, removeButton, removeAllButton, waypointSceneButton);
+		VBox buttons = new VBox(25, removeButton, removeAllButton, waypointButton);
 		trackLayoutArea.setMaxWidth(900);
-		HBox hbox = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);
-		//Group root = new Group(hbox);
-		return new Group(hbox);
+		HBox hbox = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);		
+		Scene trackLayoutScene =  new Scene(hbox, PROGRAM_WIDTH, PROGRAM_HEIGHT);
 		
-		
-		
-
+		trackLayoutScene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
+			if(Track.selected != null){
+				if(e.getCode()==KeyCode.LEFT){
+					Track.selected.rotateCCW();
+				}
+				else if(e.getCode()==KeyCode.RIGHT){
+					Track.selected.rotateCW();
+				}
+			}
+		});
+		return trackLayoutScene;	
 	}
-
-
 }

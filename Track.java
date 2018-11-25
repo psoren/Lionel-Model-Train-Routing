@@ -60,9 +60,11 @@ public abstract class Track extends StackPane{
 		this.frontTrack = null;
 		this.backTrack = null;
 		this.locked = false;
-
-		ImageView imageView = new ImageView(new Image(imageSource));
-
+		
+		FileInputStream stream = new FileInputStream(imageSource);
+		Image image = new Image(stream);		
+		ImageView imageView = new ImageView(image);
+		
 		this.getChildren().addAll(new Rectangle((int)imageView.getFitWidth(), 
 				(int)imageView.getFitHeight(), Color.BLACK), imageView);
 
@@ -328,7 +330,7 @@ public abstract class Track extends StackPane{
 	
 	//This method will be called when the waypoint area is clicked
 	//so that we can add that track to that train's waypoint list
-	public static Track waypointAreaClicked(Point2D p){
+	public static Track getClickedTrack(Point2D p){
 		for(Track t: TrainsGUI.tracks){
 			if(t.contains(t.parentToLocal(p))){
 				return t;
