@@ -1,6 +1,5 @@
 import java.util.*;
 import javafx.application.*;
-import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.stage.*;

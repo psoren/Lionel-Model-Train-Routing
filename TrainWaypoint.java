@@ -73,13 +73,12 @@ public class TrainWaypoint{
 		//Whenever the selected radio button changes, this event will be called		
 		trainRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov,
-					Toggle toggle, Toggle new_toggle) {
+					Toggle toggle, Toggle new_toggle){
+				
 				//Draw the circles on each of the tracks in the tracklist
 				if(new_toggle != null){					
 					waypointArea.getChildren().clear();
 					waypointArea.getChildren().addAll(tracks);
-					//System.out.println("the current trains are:" + trainWaypoints);
-
 					int id = new Integer(((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getId());
 					drawCirclesOnTracks(trainWaypoints.get(id));
 				}       

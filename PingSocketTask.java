@@ -1,14 +1,15 @@
 import java.io.*;
-import javafx.concurrent.Task;
+import javafx.concurrent.*;
 
 public class PingSocketTask extends Task<Void>{
 
+	String msg = "";
+	
 	@Override
 	public Void call(){
 		try{
 			PrintWriter out = new PrintWriter(MatchingSensors.socket.getOutputStream(), true);
 			BufferedReader in = new BufferedReader(new InputStreamReader(MatchingSensors.socket.getInputStream()));
-			
 			System.out.println("pinging...");
 			while(true){
 				out.println("D129D7DF");
@@ -16,13 +17,18 @@ public class PingSocketTask extends Task<Void>{
 				int read;
 				if ((read = in.read(buffer)) != -1) {
 					String output = new String(buffer, 0, read);
-					if(!output.equals("D129D7DF") && !output.equals("D13681100F020028DF")){
-						this.updateMessage(output);
+					//Clear the current messages
+					if(output.equals("D129D7DF")){
+						this.updateMessage(msg.trim());
+						msg = "";
+					}
+					//This message is part of a group of messages, append it to msg
+					else if(!output.equals("D129D7DF") && !output.equals("D13681100F020028DF")){
+						msg += " " + output;
 					}
 					System.out.flush();
 				}
 			}
-
 		}
 		catch(Exception e){
 			e.printStackTrace();

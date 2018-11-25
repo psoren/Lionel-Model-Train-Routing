@@ -1,29 +1,14 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 import javafx.beans.value.*;
-import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.*;
 import javafx.scene.layout.*;
 
 public class MatchingSensors{
-
-	//This is not working because there is more than one socket
-	
-	//There are 6 sensors and one switch
-	//The command to get all of the connected sensors/tracks:
-	//(0x01 - PDI_CMD_ALLGET)
-	//(0x04 - ACTION_INFO)
-	//D1 01 00 04 FB DF
-	//The sensor information that we get back is in the form
-	//D1 23 0B 04 11 01 01 72 3A DF
-	//in this case sensor 11 (because 0B)
 
 	//The commands to identify sensors
 	//You can just click on the sensor button at the top
@@ -36,11 +21,13 @@ public class MatchingSensors{
 	public Pane matchingSensorsArea;
 	private ToggleGroup sensorRadioButtonsToggleGroup;
 	private VBox sensorRadioButtonsBox;
-	private HashMap<RadioButton, SensorTrack> matchedTracks;
+	private HashMap<RadioButton, Track> matchedTracks;
 
 	String selectionAreaStyle = "-fx-border-color: black;" +
 			"-fx-border-width: 1;" +
 			"-fx-border-style: solid;";
+	String unMatchedStyle = "-fx-background-color: rgb(255,0,0);";
+	String matchedStyle = "-fx-background-color: rgb(0,255,0);";
 
 	final double PROGRAM_HEIGHT = 600;
 	final double PROGRAM_WIDTH = 1200;
@@ -50,11 +37,12 @@ public class MatchingSensors{
 
 	static ExecutorService executor;
 	static Socket socket = null;
-	
+
+	String mostRecentCommand;
+
 	public Scene getScene(Button waypointBtn, ArrayList<Track> tracks) throws Exception{
 
-		matchedTracks = new HashMap<RadioButton, SensorTrack>();
-
+		/***********User Interface Stuff*********************/
 		HBox topSensorButtons= new HBox(waypointBtn);
 		topSensorButtons.setAlignment(Pos.BASELINE_CENTER);
 
@@ -68,19 +56,30 @@ public class MatchingSensors{
 		/**The list of sensors that you can click on to match up the sensors**/
 		sensorRadioButtonsToggleGroup = new ToggleGroup();
 		sensorRadioButtonsBox = new VBox(10);
+		
+		//Setting up the ScrollPane
+		ScrollPane sensorList = new ScrollPane();
+		sensorList.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+		sensorList.setHbarPolicy(ScrollBarPolicy.NEVER);
+		sensorList.setContent(sensorRadioButtonsBox);
+		sensorList.setMaxHeight(300);
+		sensorList.setMinWidth(300);
+		sensorList.setContent(sensorRadioButtonsBox);
+		/****************************************************/
+		
+		/***********User Interface Stuff*********************/
+		mostRecentCommand = "";
+		matchedTracks = new HashMap<RadioButton, Track>();
 
 		//Whenever the selected radio button changes, this event will be called		
 		sensorRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
 				if(new_toggle != null){					
 					System.out.println("The selected sensor was changed");
-
 					//SensorTrack st = matchedTracks.get(new_toggle);
-
-					//					if(st != null){
-					//						st.setStyle(selectionAreaStyle);
-					//
-					//					}	
+					//if(st != null){
+					//	st.setStyle(selectionAreaStyle);
+					//}	
 				}       
 			}
 		});
@@ -89,47 +88,41 @@ public class MatchingSensors{
 		int portNumber = 50001;
 
 		socket = new Socket(hostName, portNumber);
-		
 		executor = Executors.newFixedThreadPool(2);
 
+		//Constantly pinging the sensor and getting input back
 		PingSocketTask pingSocket = new PingSocketTask();
 		executor.submit(pingSocket);
 
+		//This will fire whenever the message property of the pingSocketTask changes
+		//which only happens when we send a command to the sensor
 		pingSocket.messageProperty().addListener((obs, oldMsg, newMsg) -> {
-			System.out.println("message: " + newMsg);
+			String[] messages = newMsg.split(" ");
+
+			if(mostRecentCommand == "getInfo"){
+				ArrayList<RadioButton> sensorButtons = createSensorButtons(messages);
+
+				for(RadioButton rb: sensorButtons){
+					rb.setToggleGroup(sensorRadioButtonsToggleGroup);
+				}
+				sensorRadioButtonsBox.getChildren().clear();
+				sensorRadioButtonsBox.getChildren().addAll(sensorButtons);
+				mostRecentCommand = "";
+			}
 		});
 
-		//Setting up the ScrollPane
-		ScrollPane sensorList = new ScrollPane();
-		sensorList.setVbarPolicy(ScrollBarPolicy.ALWAYS);
-		sensorList.setHbarPolicy(ScrollBarPolicy.NEVER);
-		sensorList.setContent(sensorRadioButtonsBox);
-		sensorList.setMaxHeight(300);
-		sensorList.setMinWidth(300);
-
+		//When clicked, this button will generate a list of buttons based
+		//on the configuration of the track
 		Button getSensorInfoButton = new Button("Get Sensor Info");
 		getSensorInfoButton.setOnAction(e->{
 			try{
 				GetTrainInfoTask sensorInfoTask = new GetTrainInfoTask();
-
 				executor.submit(sensorInfoTask);
-
-				sensorInfoTask.setOnSucceeded((evt) -> {
-					System.out.println("sensorInfoTask has succeeded");
-					ArrayList<RadioButton> sensorButtons = createSensorButtons(sensorInfoTask.getValue());
-
-					for(RadioButton rb: sensorButtons){
-						rb.setToggleGroup(sensorRadioButtonsToggleGroup);
-					}
-
-					sensorRadioButtonsBox.getChildren().clear();
-					sensorRadioButtonsBox.getChildren().addAll(sensorButtons);
-				});	
+				sensorInfoTask.setOnSucceeded((evt) -> mostRecentCommand = "getInfo");	
 			}
 			catch(Exception exp){
 				exp.printStackTrace();
 			}
-
 		});
 
 		//The logic for when a sensor track is clicked
@@ -147,26 +140,41 @@ public class MatchingSensors{
 			}
 		});
 
-
+		/***************Final User Interface Stuff************/
 		VBox rightSide = new VBox(20, getSensorInfoButton, sensorList);
 		HBox mainMatchingSensors = new HBox(20, matchingSensorsArea, rightSide); 
 		VBox vbox = new VBox(topSensorButtons, mainMatchingSensors);
-		return new Scene(vbox, PROGRAM_WIDTH, PROGRAM_HEIGHT);		
+		return new Scene(vbox, PROGRAM_WIDTH, PROGRAM_HEIGHT);	
+		/*****************************************************/
 	}
 
-	private ArrayList<RadioButton> createSensorButtons(String sensorInfo){
-		//TODO: finish this
+	//The method that creates the sensor and switch buttons based off of the information
+	//from the Wifi module.  It takes in an array of strings based 
+	//on what the Wifi module returned
+	private ArrayList<RadioButton> createSensorButtons(String[] sensorInfo){
 		ArrayList<RadioButton> sensors = new ArrayList<RadioButton>();
 
-		RadioButton sensor1 = new RadioButton("Sensor 11");
-		sensor1.setId("11");
-
-		RadioButton sensor2 = new RadioButton("Sensor 12");
-		sensor2.setId("12");
-
-		sensors.add(sensor1);
-		sensors.add(sensor2);
-
+		for(String s: sensorInfo){
+			//It is a sensor
+			if(s.startsWith("D132")){
+				String sensorNumber = Integer.toString(Integer.parseInt(s.substring(4,6), 16));
+				String sensorName = "Sensor " + sensorNumber;
+				RadioButton rb = new RadioButton(sensorName);
+				rb.setId("sensor" + sensorNumber);
+				rb.setStyle(unMatchedStyle);
+				sensors.add(rb);
+			}
+			
+			//It is a switch
+			if(s.startsWith("D13E")){
+				String switchNumber = Integer.toString(Integer.parseInt(s.substring(4,6), 16));
+				String switchName = "Switch " + switchNumber;
+				RadioButton rb = new RadioButton(switchName);
+				rb.setId("switch" + switchNumber);
+				rb.setStyle(unMatchedStyle);
+				sensors.add(rb);	
+			}
+		}
 		return sensors;
 	}
 }
