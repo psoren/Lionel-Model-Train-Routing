@@ -10,16 +10,6 @@ import javafx.scene.layout.*;
 
 public class MatchingSensors{
 
-	//TODO: Rethink the whole sensor matching thing and make sure it makes sense
-
-	//The commands to identify sensors
-	//You can just click on the sensor button at the top
-	//which opens the sensor screen and then click identify
-	//need to make sure that we toggle the light, not turn it
-	//on or turn it off
-	//The command to identify sensor 12: D1 31 0C 06 BD DF
-	//The command to identify sensor 15: D1 31 0F 06 BD DF
-
 	public Pane matchingSensorsArea;
 	private ToggleGroup sensorRadioButtonsToggleGroup;
 	private VBox sensorRadioButtonsBox;
