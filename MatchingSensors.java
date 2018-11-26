@@ -10,6 +10,8 @@ import javafx.scene.layout.*;
 
 public class MatchingSensors{
 
+	//TODO: Rethink the whole sensor matching thing and make sure it makes sense
+
 	//The commands to identify sensors
 	//You can just click on the sensor button at the top
 	//which opens the sensor screen and then click identify
@@ -42,7 +44,7 @@ public class MatchingSensors{
 
 	public Scene getScene(Button waypointBtn, ArrayList<Track> tracks) throws Exception{
 
-		/***********User Interface Stuff*********************/
+		/***********General Setup******************************/
 		HBox topSensorButtons= new HBox(waypointBtn);
 		topSensorButtons.setAlignment(Pos.BASELINE_CENTER);
 
@@ -65,43 +67,63 @@ public class MatchingSensors{
 		sensorList.setMaxHeight(300);
 		sensorList.setMinWidth(300);
 		sensorList.setContent(sensorRadioButtonsBox);
+
+		String hostName = "192.168.99.1";
+		int portNumber = 50001;
+
+		socket = new Socket(hostName, portNumber);
+		executor = Executors.newFixedThreadPool(4);
 		/****************************************************/
 
 		/***********User Interface Stuff*********************/
 		mostRecentCommand = "";
 		matchedTracks = new HashMap<RadioButton, Track>();
 
-		//Whenever the selected radio button changes, this event will be called		
+		//Whenever the selected radio button changes, this event will be called	
 		sensorRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
-				if(new_toggle != null){					
-					Track selectedTrack = matchedTracks.get(new_toggle);					
+				if(new_toggle != null){		
+
+					RadioButton newButton = (RadioButton)new_toggle;
+
+					//Step 1: Light up corresponding track
+					//The button is a sensor button
+					if(newButton.getId().startsWith("sensor")){
+						IdentifySensorTask identifySensorTask = new IdentifySensorTask(newButton.getId());						
+						executor.submit(identifySensorTask);
+						//identifySensorTask.setOnFailed(e-> System.out.println("Identify sensor task failed"));
+						//identifySensorTask.setOnSucceeded(e-> System.out.println("Identify sensor task succeeded"));
+					}
+
+					//The button is a switch button
+					else{						
+						IdentifySwitchTask identifySwitchTask = new IdentifySwitchTask(newButton.getId());
+						executor.submit(identifySwitchTask);
+						//identifySwitchTask.setOnFailed(e-> System.out.println("Identify switch task failed"));
+						//identifySwitchTask.setOnSucceeded(e-> System.out.println("Identify switch task succeeded"));
+					}
+
+					//Step 2: The user clicks on that track
+					Track selectedTrack = matchedTracks.get(newButton);					
+
 					//This track has already been matched
-
-
-
 					if(selectedTrack != null){
-						//add the border
+						//Display this track as selected
 						selectedTrack.setStyle(Track.selectedStyle);
 						Track.selected = selectedTrack;
-
 					}
-
-					//This track has not already been matched
-					else if (Track.selected != null){
-						Track.selected.setStyle(Track.unselectedStyle);
-						Track.selected = null;
-					}
-
+					
+					//This sensor or switch track has not already been matched
+					else{
+						//If there is a selected track, unselect it
+						if(Track.selected != null){
+							Track.selected.setStyle(Track.unselectedStyle);
+							Track.selected = null;
+						}
+					}	
 				}       
 			}
 		});
-
-		String hostName = "192.168.99.1";
-		int portNumber = 50001;
-
-		socket = new Socket(hostName, portNumber);
-		executor = Executors.newFixedThreadPool(2);
 
 		//Constantly pinging the sensor and getting input back
 		PingSocketTask pingSocket = new PingSocketTask();
@@ -126,12 +148,15 @@ public class MatchingSensors{
 
 		//When clicked, this button will generate a list of buttons based
 		//on the configuration of the track
-		Button getSensorInfoButton = new Button("Get Sensor Info");
-		getSensorInfoButton.setOnAction(e->{
+		Button getSystemInfoButton = new Button("Get System Info");
+		getSystemInfoButton.setOnAction(e->{
 			try{
-				GetTrainInfoTask sensorInfoTask = new GetTrainInfoTask();
-				executor.submit(sensorInfoTask);
-				sensorInfoTask.setOnSucceeded((evt) -> mostRecentCommand = "getInfo");	
+				GetTrainInfoTask trainInfoTask = new GetTrainInfoTask();
+				executor.submit(trainInfoTask);
+				trainInfoTask.setOnSucceeded((evt) -> {
+					//System.out.println("The sensorInfoTask has succeeded");
+					mostRecentCommand = "getInfo";
+				});	
 			}
 			catch(Exception exp){
 				exp.printStackTrace();
@@ -204,7 +229,7 @@ public class MatchingSensors{
 		});
 
 		/***************Final User Interface Stuff************/
-		VBox rightSide = new VBox(20, getSensorInfoButton, sensorList);
+		VBox rightSide = new VBox(20, getSystemInfoButton, sensorList);
 		HBox mainMatchingSensors = new HBox(20, matchingSensorsArea, rightSide); 
 		VBox vbox = new VBox(topSensorButtons, mainMatchingSensors);
 		return new Scene(vbox, PROGRAM_WIDTH, PROGRAM_HEIGHT);	
