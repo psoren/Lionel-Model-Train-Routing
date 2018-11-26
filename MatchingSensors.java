@@ -56,7 +56,7 @@ public class MatchingSensors{
 		/**The list of sensors that you can click on to match up the sensors**/
 		sensorRadioButtonsToggleGroup = new ToggleGroup();
 		sensorRadioButtonsBox = new VBox(10);
-		
+
 		//Setting up the ScrollPane
 		ScrollPane sensorList = new ScrollPane();
 		sensorList.setVbarPolicy(ScrollBarPolicy.ALWAYS);
@@ -66,7 +66,7 @@ public class MatchingSensors{
 		sensorList.setMinWidth(300);
 		sensorList.setContent(sensorRadioButtonsBox);
 		/****************************************************/
-		
+
 		/***********User Interface Stuff*********************/
 		mostRecentCommand = "";
 		matchedTracks = new HashMap<RadioButton, Track>();
@@ -75,11 +75,24 @@ public class MatchingSensors{
 		sensorRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
 				if(new_toggle != null){					
-					System.out.println("The selected sensor was changed");
-					//SensorTrack st = matchedTracks.get(new_toggle);
-					//if(st != null){
-					//	st.setStyle(selectionAreaStyle);
-					//}	
+					Track selectedTrack = matchedTracks.get(new_toggle);					
+					//This track has already been matched
+
+
+
+					if(selectedTrack != null){
+						//add the border
+						selectedTrack.setStyle(Track.selectedStyle);
+						Track.selected = selectedTrack;
+
+					}
+
+					//This track has not already been matched
+					else if (Track.selected != null){
+						Track.selected.setStyle(Track.unselectedStyle);
+						Track.selected = null;
+					}
+
 				}       
 			}
 		});
@@ -129,14 +142,64 @@ public class MatchingSensors{
 		matchingSensorsArea.setOnMouseClicked(e->{
 			Track t = Track.getClickedTrack(new Point2D(e.getX(), e.getY()));
 
-			if(t != null && t instanceof SensorTrack){
-				if(sensorRadioButtonsToggleGroup.getSelectedToggle() != null){
+			//There was not a track under the button click
+			if(t == null && Track.selected != null){
+				Track.selected.setStyle(Track.unselectedStyle);
+				Track.selected = null;
+			}
 
-					RadioButton selectedButton = (RadioButton)sensorRadioButtonsToggleGroup.getSelectedToggle();
-					int buttonID = Integer.parseInt(selectedButton.getId());
-					((SensorTrack)t).lionelID = buttonID;
-					matchedTracks.put(selectedButton, ((SensorTrack)t));
-				}		
+			//If this track has not already been matched to by one of the radio buttons
+			if(!matchedTracks.containsValue(t)){
+				//If the clicked track is a sensor track
+				if(t != null && t instanceof SensorTrack){
+					if(sensorRadioButtonsToggleGroup.getSelectedToggle() != null){
+
+						RadioButton selectedButton = (RadioButton)sensorRadioButtonsToggleGroup.getSelectedToggle();
+						String buttonID = selectedButton.getId();
+
+						//Make sure that the button is 
+						//actually a sensor button
+						if(buttonID.startsWith("sensor")){
+							((SensorTrack)t).lionelID = buttonID;
+							matchedTracks.put(selectedButton, t);
+							selectedButton.setStyle(matchedStyle);
+						}
+					}		
+				}
+
+				//If the clicked track is a SwitchRightTrack
+				if(t != null && t instanceof SwitchRightTrack){
+					if(sensorRadioButtonsToggleGroup.getSelectedToggle() != null){
+
+						RadioButton selectedButton = (RadioButton)sensorRadioButtonsToggleGroup.getSelectedToggle();
+						String buttonID = selectedButton.getId();
+
+						//Make sure that the button is 
+						//actually a switch button
+						if(buttonID.startsWith("switch")){
+							((SwitchRightTrack)t).lionelID = buttonID;
+							matchedTracks.put(selectedButton, t);
+							selectedButton.setStyle(matchedStyle);
+						}
+					}		
+				}
+
+				//If the clicked track is a SwitchLeftTrack
+				if(t != null && t instanceof SwitchLeftTrack){
+					if(sensorRadioButtonsToggleGroup.getSelectedToggle() != null){
+
+						RadioButton selectedButton = (RadioButton)sensorRadioButtonsToggleGroup.getSelectedToggle();
+						String buttonID = selectedButton.getId();
+
+						//Make sure that the button is 
+						//actually a switch button
+						if(buttonID.startsWith("switch")){
+							((SwitchLeftTrack)t).lionelID = buttonID;
+							matchedTracks.put(selectedButton, t);
+							selectedButton.setStyle(matchedStyle);
+						}
+					}		
+				}
 			}
 		});
 
@@ -164,7 +227,7 @@ public class MatchingSensors{
 				rb.setStyle(unMatchedStyle);
 				sensors.add(rb);
 			}
-			
+
 			//It is a switch
 			if(s.startsWith("D13E")){
 				String switchNumber = Integer.toString(Integer.parseInt(s.substring(4,6), 16));

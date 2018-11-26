@@ -38,8 +38,7 @@ public class TrackLayout{
 		final double LAYOUT_AREA_HEIGHT = PROGRAM_HEIGHT;
 		final double LAYOUT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
 
-		
-		//if source is online, change how we access the pictures
+		//If image source is online, change how we access the pictures
 		//final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
 		final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
 		

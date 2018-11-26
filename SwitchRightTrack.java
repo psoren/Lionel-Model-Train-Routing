@@ -1,9 +1,11 @@
 import java.io.FileNotFoundException;
-
 import javafx.geometry.Point2D;
 
 //The offshoot track is 30 degrees off of straight track
 public class SwitchRightTrack extends Track{
+	
+	//The ID of this track in the Wifi module
+	public String lionelID;
 
 	//The orientation of the side track
 	public int sideOrientation;
@@ -21,6 +23,7 @@ public class SwitchRightTrack extends Track{
 		this.sideOrientation = 30;
 		this.sideTrack = null;
 		this.length = 15;
+		this.lionelID = "";
 	}	
 
 	@Override

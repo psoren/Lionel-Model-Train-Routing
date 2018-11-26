@@ -4,7 +4,8 @@ import javafx.geometry.Point2D;
 
 public class SensorTrack extends Track{
 	
-	public int lionelID;
+	//The ID of this track in the Wifi module
+	public String lionelID;
 	
 	public SensorTrack(int x, int y, String imgSrc) throws FileNotFoundException{
 		super(x,y,imgSrc);
@@ -14,7 +15,7 @@ public class SensorTrack extends Track{
 		this.frontOrientation = 0;
 		this.backOrientation = 0;
 		this.length = 5;
-		this.lionelID = -1;
+		this.lionelID = "";
 	}
 
 	@Override

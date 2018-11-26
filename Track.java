@@ -20,8 +20,8 @@ public abstract class Track extends StackPane{
 	/**Static fields**/
 	//This is a static field that is set whenever a track is selected
 	public static Track selected;
-	private static final String selectedStyle = "-fx-border-color: black; -fx-border-width: 2;";
-	private static final String unselectedStyle = "-fx-border-style: none";
+	public static final String selectedStyle = "-fx-border-color: black; -fx-border-width: 2;";
+	public static final String unselectedStyle = "-fx-border-style: none";
 	private static final String sameOrientationStyle = "-fx-border-color: green";
 	private static final String differentOrientationStyle = "-fx-border-color: red";
 

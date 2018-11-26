@@ -5,6 +5,9 @@ import javafx.geometry.Point2D;
 //The offshoot track is 30 degrees off of straight track
 public class SwitchLeftTrack extends Track{
 
+	//The ID of this track in the Wifi module
+	public String lionelID;
+
 	//The orientation of the side track
 	public int sideOrientation;
 
@@ -21,6 +24,7 @@ public class SwitchLeftTrack extends Track{
 		this.sideOrientation = 330;
 		this.sideTrack = null;
 		this.length = 15;
+		this.lionelID = "";
 	}	
 
 	@Override
@@ -60,12 +64,12 @@ public class SwitchLeftTrack extends Track{
 	Point2D getFrontCoords() {
 		return this.localToParent(this.getWidth(), this.getHeight()-50);
 	}
-	
+
 	@Override
 	Point2D getBackCoords() {
 		return this.localToParent(0, this.getHeight()-50);
 	}
-	
+
 	public Point2D getSideCoords(){
 		return this.localToParent(this.getWidth()-30, 0);
 	}
