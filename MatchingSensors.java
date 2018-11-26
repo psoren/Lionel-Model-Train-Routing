@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -32,10 +33,10 @@ public class MatchingSensors{
 
 	String mostRecentCommand;
 
-	public Scene getScene(Button waypointBtn, ArrayList<Track> tracks) throws Exception{
+	public Scene getScene(Button waypointBtn, Button trainRunBtn,ArrayList<Track> tracks){
 
 		/***********General Setup******************************/
-		HBox topSensorButtons= new HBox(waypointBtn);
+		HBox topSensorButtons= new HBox(waypointBtn, trainRunBtn);
 		topSensorButtons.setAlignment(Pos.BASELINE_CENTER);
 
 		/**The area where the user can match sensors**/
@@ -61,7 +62,13 @@ public class MatchingSensors{
 		String hostName = "192.168.99.1";
 		int portNumber = 50001;
 
-		socket = new Socket(hostName, portNumber);
+		try {
+			socket = new Socket(hostName, portNumber);
+		} 
+		catch (IOException e) {
+			System.err.println("Could not connect to Lionel Wifi");
+		}
+
 		executor = Executors.newFixedThreadPool(4);
 		/****************************************************/
 
@@ -102,7 +109,7 @@ public class MatchingSensors{
 						selectedTrack.setStyle(Track.selectedStyle);
 						Track.selected = selectedTrack;
 					}
-					
+
 					//This sensor or switch track has not already been matched
 					else{
 						//If there is a selected track, unselect it

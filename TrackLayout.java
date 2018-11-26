@@ -2,6 +2,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -41,7 +42,6 @@ public class TrackLayout{
 		//If image source is online, change how we access the pictures
 		//final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
 		final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
-		
 		
 		final String STRAIGHT_IMG = "straight.png";
 		final String SENSOR_IMG = "sensor.png";
@@ -246,11 +246,14 @@ public class TrackLayout{
 			trackLayoutArea.getChildren().addAll(tracks);
 		});
 		/*****************Layout Organization****************/
-
-		VBox buttons = new VBox(25, removeButton, removeAllButton, waypointButton);
+		HBox topButtons = new HBox(waypointButton);
+		topButtons.setAlignment(Pos.BASELINE_CENTER);
+		
+		VBox buttons = new VBox(25, removeButton, removeAllButton);
 		trackLayoutArea.setMaxWidth(900);
-		HBox hbox = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);		
-		Scene trackLayoutScene =  new Scene(hbox, PROGRAM_WIDTH, PROGRAM_HEIGHT);
+		HBox mainBottomArea = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);	
+		VBox main = new VBox(topButtons, mainBottomArea);
+		Scene trackLayoutScene =  new Scene(main, PROGRAM_WIDTH, PROGRAM_HEIGHT);
 		
 		trackLayoutScene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
 			if(Track.selected != null){

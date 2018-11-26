@@ -18,10 +18,12 @@ public class TrainsGUI extends Application{
 	TrackLayout trackLayout;
 	TrainWaypoint trainWaypoint;
 	MatchingSensors matchingSensors;
+	TrainRunning trainRunning;
 	
 	Scene trainWaypointScene;
 	Scene trackLayoutScene;
 	Scene matchingSensorScene;
+	Scene trainRunningScene;
 	Stage mainStage;
 
 	@Override
@@ -56,13 +58,33 @@ public class TrainsGUI extends Application{
 
 		matchingSensors = new MatchingSensors();
 		Button matchingSensorsToTrainWaypointButton = new Button("Train Waypoints");
-		matchingSensorScene = matchingSensors.getScene(matchingSensorsToTrainWaypointButton, tracks);
+		Button matchingSensorsToTrainRunningButton = new Button("Run Train");
+		matchingSensorScene = matchingSensors.getScene(matchingSensorsToTrainWaypointButton, matchingSensorsToTrainRunningButton, tracks);
 
 		matchingSensorsToTrainWaypointButton.setOnAction(e-> {
 			mainStage.setScene(trainWaypointScene);			
 			trainWaypoint.waypointArea.getChildren().clear();
 			for(Track t: tracks){trainWaypoint.waypointArea.getChildren().add(t);}
 		});
+		
+		matchingSensorsToTrainRunningButton.setOnAction(e->{
+			mainStage.setScene(trainRunningScene);
+			trainRunning.trainRunningArea.getChildren().clear();
+			for(Track t: tracks){trainRunning.trainRunningArea.getChildren().add(t);}
+		});
+		
+		trainRunning = new TrainRunning();
+		Button trainRunningToMatchSensorsBtn = new Button("Match Sensors");
+		trainRunningScene = trainRunning.getScene(trainRunningToMatchSensorsBtn, tracks);
+		
+		trainRunningToMatchSensorsBtn.setOnAction(e->{
+			mainStage.setScene(matchingSensorScene);
+			matchingSensors.matchingSensorsArea.getChildren().clear();
+			for(Track t: tracks){matchingSensors.matchingSensorsArea.getChildren().add(t);}
+		});
+		
+		
+		
 
 		mainStage.setTitle("Trains");
 		mainStage.setScene(trackLayoutScene);
