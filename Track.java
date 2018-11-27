@@ -276,7 +276,6 @@ public abstract class Track extends StackPane{
 			if(this instanceof SwitchLeftTrack){
 				sTrack = ((SwitchLeftTrack)this).sideTrack;
 				((SwitchLeftTrack)this).sideTrack = null;
-
 			}
 
 			if(this instanceof SwitchRightTrack){
@@ -292,12 +291,16 @@ public abstract class Track extends StackPane{
 				sTrack.resetTracks(this);
 			}
 		}
-		
-		if(this.isIsolated()){
-			this.locked = false;
-			this.disableDisconnectTrack();
-		}
 
+		if(this.frontTrack != null){
+			this.frontTrack.resetTracks(this);
+
+		}
+		
+		if(this.backTrack != null){
+			this.backTrack.resetTracks(this);
+		}
+		
 		//This track is now isolated, unlock it
 		if(this.frontTrack != null && this.frontTrack.isIsolated()){
 			this.frontTrack.locked = false;
@@ -309,19 +312,14 @@ public abstract class Track extends StackPane{
 			this.backTrack.locked = false;
 			this.backTrack.disableDisconnectTrack();
 		}
-		
-		
-		if(this.frontTrack != null){
-			this.frontTrack.resetTracks(this);
-
-		}
-		
-		if(this.backTrack != null){
-			this.backTrack.resetTracks(this);
-		}
 
 		this.frontTrack = null;
 		this.backTrack = null;
+		
+		if(this.isIsolated()){
+			this.locked = false;
+			this.disableDisconnectTrack();
+		}
 	}
 
 	//Disable the disconnectTrack option in this track's contextMenu
