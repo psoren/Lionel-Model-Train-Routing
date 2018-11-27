@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.ArrayList;
 import javafx.beans.property.*;
 import javafx.collections.*;
 import javafx.geometry.*;
@@ -28,15 +29,15 @@ public abstract class Track extends StackPane{
 	/**Non-static fields**/
 	//The number of rotations for a track to be back at the same position
 	protected int numRotations;
-	
+
 	//The length of this track in inches
 	protected int length;
 
 	//The track in front of this track
-	private Track frontTrack;
+	public Track frontTrack;
 
 	//The track to the back of this track
-	private Track backTrack;
+	public Track backTrack;
 
 	//The orientation of the front of the track (How many degrees off of 0 it is)
 	public int frontOrientation;
@@ -49,7 +50,7 @@ public abstract class Track extends StackPane{
 
 	//The context menu for this track
 	private ContextMenu contextMenu;
-	
+
 	/**
 	 * @param x: the x coordinate of the image
 	 * @param y: the y coordinate of the image
@@ -60,11 +61,11 @@ public abstract class Track extends StackPane{
 		this.frontTrack = null;
 		this.backTrack = null;
 		this.locked = false;
-		
+
 		FileInputStream stream = new FileInputStream(imageSource);
 		Image image = new Image(stream);		
 		ImageView imageView = new ImageView(image);
-		
+
 		this.getChildren().addAll(new Rectangle((int)imageView.getFitWidth(), 
 				(int)imageView.getFitHeight(), Color.BLACK), imageView);
 
@@ -74,6 +75,8 @@ public abstract class Track extends StackPane{
 		this.setLayoutY(y);
 
 		this.addEventHandler(MouseEvent.MOUSE_PRESSED, e ->{
+
+			this.printDebugInfo();
 
 			//Unselect the previous track
 			if(Track.selected != null){
@@ -134,6 +137,10 @@ public abstract class Track extends StackPane{
 							&& this.frontOrientation == t.backOrientation){	
 						this.setLayoutX(this.getLayoutX() + t.getBackCoords().getX() - this.getFrontCoords().getX());
 						this.setLayoutY(this.getLayoutY() + t.getBackCoords().getY() - this.getFrontCoords().getY());
+
+						this.frontTrack = t;
+						t.backTrack = this;
+
 						snapped = true;
 					}
 
@@ -142,6 +149,10 @@ public abstract class Track extends StackPane{
 							&& this.backOrientation == t.frontOrientation){
 						this.setLayoutX(this.getLayoutX() + t.getFrontCoords().getX() - this.getBackCoords().getX());
 						this.setLayoutY(this.getLayoutY() + t.getFrontCoords().getY() - this.getBackCoords().getY());
+
+						this.backTrack = t;
+						t.frontTrack = this;
+
 						snapped = true;
 					}
 
@@ -151,6 +162,10 @@ public abstract class Track extends StackPane{
 								&& this.backOrientation == ((SwitchRightTrack)t).sideOrientation){
 							this.setLayoutX(this.getLayoutX() + ((SwitchRightTrack)t).getSideCoords().getX() - this.getBackCoords().getX());
 							this.setLayoutY(this.getLayoutY() + ((SwitchRightTrack)t).getSideCoords().getY() - this.getBackCoords().getY());
+
+							this.backTrack = t;
+							((SwitchRightTrack)t).sideTrack = this;
+
 							snapped = true;
 						}
 					}
@@ -161,24 +176,36 @@ public abstract class Track extends StackPane{
 								&& this.backOrientation == ((SwitchLeftTrack)t).sideOrientation){
 							this.setLayoutX(this.getLayoutX() + ((SwitchLeftTrack)t).getSideCoords().getX() - this.getBackCoords().getX());
 							this.setLayoutY(this.getLayoutY() + ((SwitchLeftTrack)t).getSideCoords().getY() - this.getBackCoords().getY());
+
+							this.backTrack = t;
+							((SwitchLeftTrack)t).sideTrack = this;
+
 							snapped = true;
 						}
 					}
 
-					//If you are dragging a switchRightTrack towards another track
+					//If you are dragging the side of a switchRightTrack towards the back of another track
 					else if (this instanceof SwitchRightTrack){
 						if(((SwitchRightTrack)this).getSideCoords().distance(t.getBackCoords()) < SNAPTOGETHERDISTANCE){
 							this.setLayoutX(this.getLayoutX() - ((SwitchRightTrack)this).getSideCoords().getX() + t.getBackCoords().getX());
 							this.setLayoutY(this.getLayoutY() - ((SwitchRightTrack)this).getSideCoords().getY() + t.getBackCoords().getY());
+
+							((SwitchRightTrack)this).sideTrack = t;
+							t.backTrack = this;
+
 							snapped = true;
 						}
 					}
-					
-					//If you are dragging a switchLeftTrack towards another track
+
+					//If you are dragging the side of a switchLeftTrack towards the back of another track
 					else if (this instanceof SwitchLeftTrack){
 						if(((SwitchLeftTrack)this).getSideCoords().distance(t.getBackCoords()) < SNAPTOGETHERDISTANCE){
 							this.setLayoutX(this.getLayoutX() - ((SwitchLeftTrack)this).getSideCoords().getX() + t.getBackCoords().getX());
 							this.setLayoutY(this.getLayoutY() - ((SwitchLeftTrack)this).getSideCoords().getY() + t.getBackCoords().getY());
+
+							((SwitchLeftTrack)this).sideTrack = t;
+							t.backTrack = this;
+
 							snapped = true;
 						}
 					}
@@ -190,9 +217,6 @@ public abstract class Track extends StackPane{
 						this.enableDisconnectTrack();
 						t.enableDisconnectTrack();
 
-						this.frontTrack = t;
-						t.backTrack = this;
-						//this.highlightTracks();
 						break;
 					}
 				}
@@ -202,38 +226,9 @@ public abstract class Track extends StackPane{
 
 	//A way to highlight the tracks based on their orientation
 	protected void highlightTracks(){
-		//loop through the frontTrack list
-		Track fTrack = this.frontTrack;
-		while(fTrack != null){
-
-			//if their orientations match, make them green
-			if(fTrack.backOrientation == this.frontOrientation){
-				this.setStyle(sameOrientationStyle);
-				fTrack.setStyle(sameOrientationStyle);
-			}
-			//Otherwise, make them red
-			else{
-				this.setStyle(differentOrientationStyle);
-				fTrack.setStyle(differentOrientationStyle);
-			}
-			fTrack = fTrack.frontTrack;
-		}
-
-		//loop through the backTrack list
-		Track bTrack = this.backTrack;
-		while(bTrack != null){
-			//if their orientations match, make them green
-			if(bTrack.frontOrientation == this.backOrientation){
-				this.setStyle(sameOrientationStyle);
-				bTrack.setStyle(sameOrientationStyle);
-			}
-			//Otherwise, make them red
-			else{
-				this.setStyle(differentOrientationStyle);
-				bTrack.setStyle(differentOrientationStyle);
-			}
-			bTrack = bTrack.frontTrack;
-		}
+		//to do this, would need to run DFS on each track and make sure the orientations matched
+		//If they did, could highlight them in green.
+		//If not, highlight them in red.
 	}
 
 	//Rotate the track's image by 360/numRotations degrees clockwise
@@ -245,7 +240,6 @@ public abstract class Track extends StackPane{
 		this.backOrientation %= 360;
 
 		this.setRotate(this.backOrientation);
-		//this.highlightTracks();
 	}
 
 	//Rotate the track's image by 360/numRotations degrees counter-clockwise
@@ -260,11 +254,10 @@ public abstract class Track extends StackPane{
 		this.backOrientation %= 360;
 
 		this.setRotate(this.backOrientation);
-		//this.highlightTracks();
 	}
 
-	//This method is called whenever the user wants to disconnect the selected
-	//track from some other track
+	//This method is called whenever the user wants to 
+	//disconnect the selected track from some other track
 	private void disconnect(){
 		this.disableDisconnectTrack();
 		this.unlockConnectedTracks();
@@ -273,23 +266,62 @@ public abstract class Track extends StackPane{
 		this.setLayoutY(this.getLayoutY() - 100);
 	}
 
-	//This method is called when this track is deleted
-	//in order to unlock the tracks that were connected to the now-deleted track
+	//This method is called when this track 
+	//is deleted or disconnected
 	public void unlockConnectedTracks(){
-		Track fTrack = this.frontTrack;
-		Track bTrack = this.backTrack;
+		if(this instanceof SwitchLeftTrack || this instanceof SwitchRightTrack){
+			
+			Track sTrack = null;
 
-		//This track is now isolated, unlock it
-		if(fTrack != null && fTrack.frontTrack == null){
-			fTrack.locked = false;
-			fTrack.disableDisconnectTrack();
+			if(this instanceof SwitchLeftTrack){
+				sTrack = ((SwitchLeftTrack)this).sideTrack;
+				((SwitchLeftTrack)this).sideTrack = null;
+
+			}
+
+			if(this instanceof SwitchRightTrack){
+				sTrack = ((SwitchRightTrack)this).sideTrack;
+				((SwitchRightTrack)this).sideTrack = null;
+			}
+
+			if(sTrack != null && sTrack.isIsolated()){
+				sTrack.locked = false;
+				sTrack.disableDisconnectTrack();
+			}
+			if(sTrack != null){
+				sTrack.resetTracks(this);
+			}
+		}
+		
+		if(this.isIsolated()){
+			this.locked = false;
+			this.disableDisconnectTrack();
 		}
 
 		//This track is now isolated, unlock it
-		if(bTrack != null && bTrack.backTrack == null){
-			bTrack.locked = false;
-			bTrack.disableDisconnectTrack();
+		if(this.frontTrack != null && this.frontTrack.isIsolated()){
+			this.frontTrack.locked = false;
+			this.frontTrack.disableDisconnectTrack();
 		}
+
+		//This track is now isolated, unlock it
+		if(this.backTrack != null && this.backTrack.isIsolated()){
+			this.backTrack.locked = false;
+			this.backTrack.disableDisconnectTrack();
+		}
+		
+		
+		if(this.frontTrack != null){
+			this.frontTrack.resetTracks(this);
+
+		}
+		
+		if(this.backTrack != null){
+			this.backTrack.resetTracks(this);
+		}
+
+		this.frontTrack = null;
+		this.backTrack = null;
 	}
 
 	//Disable the disconnectTrack option in this track's contextMenu
@@ -327,7 +359,7 @@ public abstract class Track extends StackPane{
 			Track.selected = null;
 		}	
 	}
-	
+
 	//This method will be called when the waypoint area is clicked
 	//so that we can add that track to that train's waypoint list
 	public static Track getClickedTrack(Point2D p){
@@ -339,8 +371,19 @@ public abstract class Track extends StackPane{
 		return null;
 	}
 
-	public static void generateGraph(){
-		System.out.println("generate graph was called");	
+	//A method to print info about this track
+	private void printDebugInfo(){
+		if(this.frontTrack != null){System.out.println("this track is connected at the front to a " + this.frontTrack.getClass());}		
+		if(this.backTrack != null){System.out.println("this track is connected at the back to a " + this.backTrack.getClass());}
+
+		if(this instanceof SwitchLeftTrack && ((SwitchLeftTrack)this).sideTrack != null){
+			System.out.println("this track is connected on the side to a " + ((SwitchLeftTrack)this).sideTrack.getClass());}
+
+		if(this instanceof SwitchRightTrack && ((SwitchRightTrack)this).sideTrack != null){
+			System.out.println("this track is connected on the side to a " + ((SwitchRightTrack)this).sideTrack.getClass());}
+
+		ArrayList<Track> reachable = TrainsGUI.DFSinit(this);
+		System.out.println("You can reach " + reachable.size() + " tracks from this track.\n");
 	}
 
 	//Gets the front left of the track in its respective
@@ -350,4 +393,18 @@ public abstract class Track extends StackPane{
 	//Gets the back left of the track in its respective
 	//coordinate system and returns it in the parent coordinate system
 	abstract Point2D getBackCoords();
+
+	boolean isIsolated(){
+		return this.frontTrack == null && this.backTrack == null;
+	}
+	
+	//A method called when disconnecting tracks
+	protected void resetTracks(Track t){
+		if(this.frontTrack == t){
+			this.frontTrack = null;
+		}
+		else if(this.backTrack == t){
+			this.backTrack = null;
+		}	
+	}
 }

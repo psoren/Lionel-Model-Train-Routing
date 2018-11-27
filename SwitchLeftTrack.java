@@ -69,6 +69,25 @@ public class SwitchLeftTrack extends Track{
 	Point2D getBackCoords() {
 		return this.localToParent(0, this.getHeight()-50);
 	}
+	
+	@Override
+	//A method called when disconnecting tracks
+	protected void resetTracks(Track t){
+		if(this.frontTrack != null && this.frontTrack == t){
+			this.frontTrack = null;
+		}
+		else if(this.backTrack != null && this.backTrack == t){
+			this.backTrack = null;
+		}
+		else if(this.sideTrack != null && this.sideTrack == t){
+			this.sideTrack = null;
+		}	
+	}
+	
+	@Override
+	boolean isIsolated(){
+		return this.frontTrack == null && this.backTrack == null && this.sideTrack == null;
+	}
 
 	public Point2D getSideCoords(){
 		return this.localToParent(this.getWidth()-30, 0);

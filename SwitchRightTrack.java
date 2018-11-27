@@ -3,7 +3,7 @@ import javafx.geometry.Point2D;
 
 //The offshoot track is 30 degrees off of straight track
 public class SwitchRightTrack extends Track{
-	
+
 	//The ID of this track in the Wifi module
 	public String lionelID;
 
@@ -63,12 +63,31 @@ public class SwitchRightTrack extends Track{
 	Point2D getFrontCoords() {
 		return this.localToParent(this.getWidth(),0);
 	}
-	
+
 	@Override
 	Point2D getBackCoords() {
 		return this.localToParent(0,0);
 	}
+
+	@Override
+	boolean isIsolated(){
+		return this.frontTrack == null && this.backTrack == null && this.sideTrack == null;
+	}
 	
+	@Override
+	//A method called when disconnecting tracks
+	protected void resetTracks(Track t){
+		if(this.frontTrack != null && this.frontTrack == t){
+			this.frontTrack = null;
+		}
+		else if(this.backTrack != null && this.backTrack == t){
+			this.backTrack = null;
+		}
+		else if(this.sideTrack != null && this.sideTrack == t){
+			this.sideTrack = null;
+		}	
+	}
+
 	Point2D getSideCoords(){
 		return this.localToParent(this.getWidth() + 3, this.getHeight()-37);
 	}

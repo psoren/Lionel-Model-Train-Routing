@@ -1,23 +1,13 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
-import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
-import javafx.scene.Scene;
+import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.*;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
 
 public class TrackLayout{
 	

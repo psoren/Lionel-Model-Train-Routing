@@ -48,7 +48,4 @@ public class TrainRunning {
 		VBox main = new VBox(topButtons, mainBottomArea);
 		return new Scene(main, PROGRAM_WIDTH, PROGRAM_HEIGHT);	
 	}
-
-
-
 }
