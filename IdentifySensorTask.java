@@ -11,7 +11,7 @@ public class IdentifySensorTask extends Task<Void>{
 	
 	@Override
 	protected Void call() throws Exception{
-		PrintWriter out = new PrintWriter(TrainsGUI.socket.getOutputStream(), true);
+		PrintWriter out = new PrintWriter(SocketCommunication.socket.getOutputStream(), true);
 		
 		//sensorID is of the form "sensorXX" where XX is the number
 		//of the sensor that we need to identify

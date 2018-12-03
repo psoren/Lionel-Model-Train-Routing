@@ -1,8 +1,4 @@
-import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import javafx.application.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -26,21 +22,19 @@ public class TrainsGUI extends Application{
 	TrainWaypoint trainWaypoint;
 	MatchingSensors matchingSensors;
 	TrainRunning trainRunning;
+	SocketCommunication socketCommunication;
 
 	Scene trainWaypointScene;
 	Scene trackLayoutScene;
 	Scene matchingSensorScene;
 	Scene trainRunningScene;
 	Stage mainStage;
-	
-	static ExecutorService executor;
-	static Socket socket = null;
 
 	@Override
 	public void start(Stage primaryStage) throws Exception{
 		mainStage = primaryStage;
 
-		trackLayout = new TrackLayout();
+		trackLayout = new TrackLayout(this);
 		Button trackLayoutTotrainWaypointButton = new Button("Train Waypoints");
 		trackLayoutScene = trackLayout.getScene(trackLayoutTotrainWaypointButton, tracks);
 
@@ -48,12 +42,11 @@ public class TrainsGUI extends Application{
 
 			//If all of the tracks are not connected, do not let the 
 			//user move on to the next screen
-			
 			if(tracks.size() == 0){
 				Popup.display("Please create your tracks.", "Input Your Track");
 			}
 			else{
-				ArrayList<Track> reachableTracks = trackLayout.DFSinit(tracks.get(0));
+				ArrayList<Track> reachableTracks = TrackLayout.DFSinit(tracks.get(0));
 
 				//We could reach all of the tracks from the first track,
 				//so the tracks are all connected
@@ -68,7 +61,7 @@ public class TrainsGUI extends Application{
 			}
 		});
 
-		trainWaypoint = new TrainWaypoint();
+		trainWaypoint = new TrainWaypoint(this);
 		Button trainWaypointToTrackLayoutButton = new Button("Track Layout");
 		Button trainWaypointToMatchingSensorsButton = new Button("Match Sensors");
 		trainWaypointScene = trainWaypoint.getScene(trainWaypointToTrackLayoutButton, trainWaypointToMatchingSensorsButton, tracks);
@@ -84,7 +77,7 @@ public class TrainsGUI extends Application{
 			for(Track t: tracks){matchingSensors.matchingSensorsArea.getChildren().add(t);}
 		});
 
-		matchingSensors = new MatchingSensors();
+		matchingSensors = new MatchingSensors(this);
 		Button matchingSensorsToTrainWaypointButton = new Button("Train Waypoints");
 		Button matchingSensorsToTrainRunningButton = new Button("Run Train");
 		matchingSensorScene = matchingSensors.getScene(matchingSensorsToTrainWaypointButton, matchingSensorsToTrainRunningButton, tracks);
@@ -102,7 +95,7 @@ public class TrainsGUI extends Application{
 			Popup.display("Please place your trains directly before their first waypoint.", "Train Placement");
 		});
 
-		trainRunning = new TrainRunning();
+		trainRunning = new TrainRunning(this);
 		Button trainRunningToMatchSensorsBtn = new Button("Match Sensors");
 		trainRunningScene = trainRunning.getScene(trainRunningToMatchSensorsBtn, tracks);
 
@@ -112,22 +105,12 @@ public class TrainsGUI extends Application{
 			for(Track t: tracks){matchingSensors.matchingSensorsArea.getChildren().add(t);}
 		});
 
+		socketCommunication = new SocketCommunication(this);
+
 		mainStage.setTitle("Trains");
 		mainStage.setScene(trackLayoutScene);
 		mainStage.show();
 	}
-	
-	//This method is called when the the executorService is shutdown
-	//(When the trains need to be stopped)
-	public static void createNewExecutor(){
-		executor = Executors.newFixedThreadPool(4);
-	}
-	
-	
-	
-	
-	
-	
 
 	public static void main(String[] args) {
 		launch(args);

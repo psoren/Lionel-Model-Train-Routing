@@ -17,9 +17,9 @@ public class TrainWaypoint{
 
 	final double WAYPOINT_AREA_HEIGHT = PROGRAM_HEIGHT;
 	final double WAYPOINT_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
-	
+
 	final double SELECTION_AREA_WIDTH = (int)0.2*PROGRAM_WIDTH;
-	
+
 	String selectionAreaStyle = "-fx-border-color: black;" +
 			"-fx-border-width: 1;" +
 			"-fx-border-style: solid;";
@@ -28,8 +28,14 @@ public class TrainWaypoint{
 	VBox trainRadioButtonsBox;
 	Pane waypointArea;
 
+	TrainsGUI gui;
+
 	//The list of tracks for each train
 	public static ConcurrentHashMap<Integer, ArrayList<Track>> trainWaypoints = new ConcurrentHashMap<Integer, ArrayList<Track>>();
+
+	public TrainWaypoint(TrainsGUI gui){
+		this.gui = gui;
+	}
 
 	public Scene getScene(Button trackLayoutScreenButton, Button matchSensorsButton,
 			ArrayList<Track> tracks){
@@ -74,7 +80,7 @@ public class TrainWaypoint{
 		trainRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov,
 					Toggle toggle, Toggle new_toggle){
-				
+
 				//Draw the circles on each of the tracks in the tracklist
 				if(new_toggle != null){					
 					waypointArea.getChildren().clear();
@@ -193,7 +199,7 @@ public class TrainWaypoint{
 			counter++;
 		}
 	}
-	
+
 	//A method to generate a random color and return the CSS string
 	private String generateRandomColor(){
 		int r = (int)(Math.random()*255);

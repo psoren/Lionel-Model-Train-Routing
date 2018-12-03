@@ -8,8 +8,8 @@ public class PingSocketTask extends Task<Void>{
 	@Override
 	public Void call(){
 		try{
-			PrintWriter out = new PrintWriter(TrainsGUI.socket.getOutputStream(), true);
-			BufferedReader in = new BufferedReader(new InputStreamReader(TrainsGUI.socket.getInputStream()));
+			PrintWriter out = new PrintWriter(SocketCommunication.socket.getOutputStream(), true);
+			BufferedReader in = new BufferedReader(new InputStreamReader(SocketCommunication.socket.getInputStream()));
 			System.out.println("pinging...");
 			while(true){
 				out.println("D129D7DF");

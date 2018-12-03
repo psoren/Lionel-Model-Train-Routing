@@ -1,4 +1,3 @@
-import java.io.*;
 import java.util.*;
 import javafx.concurrent.*;
 
@@ -13,7 +12,7 @@ public class ControlTrainTask extends Task<Void>{
 
 	@Override
 	protected Void call() throws Exception{
-		
+
 		//PrintWriter out = new PrintWriter(TrainsGUI.socket.getOutputStream(), true);
 
 		//This is for train 54
@@ -24,15 +23,12 @@ public class ControlTrainTask extends Task<Void>{
 		String thruCmd = "D13D141400009BDF";
 		String outCmd = "D13D141401009ADF";
 
-		//To make the train go from waypoint to waypoint
-
-
 		//1. Get the list of train waypoints
 		//For now, only getting the list at index 0
 
 		//If the user has input a waypoint
 		if(TrainWaypoint.trainWaypoints.size() >= 1){
-						
+
 			ArrayList<Track> trainWaypoints = TrainWaypoint.trainWaypoints.get(0);
 
 			//Now create paths based on the waypoints
@@ -52,16 +48,6 @@ public class ControlTrainTask extends Task<Void>{
 				trainPaths.add(path);	
 			}
 
-			
-			
-			for(int i = 0; i < trainPaths.size();i++){
-				ArrayList<Track> p = trainPaths.get(i);
-				for(int j = 0; j < p.size();j++){
-					System.out.println("The track at index " + j + " of path " + i + " :" + p.get(j));
-				}
-			}
-			
-			
 			//Now we have a list of lists of tracks that are 
 			//paths from one waypoint to another
 			int currentPathNum = 0;
@@ -75,7 +61,7 @@ public class ControlTrainTask extends Task<Void>{
 						//Then we know there is at least one more track after this track
 
 						//TODO: Make sure this is based on the actual switch number, not
-						//number 20
+						//switch number 20
 
 						//Then we know that the switchTrack needs to be set to the thru orientation
 						if(currentPath.get(i+1) == currentPath.get(i).frontTrack ||
@@ -88,46 +74,26 @@ public class ControlTrainTask extends Task<Void>{
 					}
 				}
 
-				//2. Move Train
+				//2. Move train along currentPath
 
 
 
-				//out.println(absSpd3);
-				//Thread.sleep(1000);
-				//out.println(reverse);
-				//Thread.sleep(1000);
 
 
 				if(currentPathNum == trainPaths.size()-1){currentPathNum = 0;}
 				else{currentPathNum++;}
 			}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		}
-		else{
-			Popup.display("Please input some track waypoints", "Input Waypoints");
 		}
 		return null;
 	}
+	
+	
+	public void sensorEvent(int sensorID, String direction){
+		System.out.println("This train: " + this.trainID + " passed over sensor " + sensorID + " going " + direction);
+	}
+	
+	
+	
 
 	//This method gets the formatted string of this train's ID
 	//in decimal and pads it with 0s if necessary
@@ -177,7 +143,7 @@ public class ControlTrainTask extends Task<Void>{
 
 			//remove the closest track from the list of vertices
 			allVertices.remove(closestTrack);
-			
+
 			if(closestTrack == end){
 				ArrayList<Track> path = new ArrayList<Track>();
 				Track u = end;
@@ -186,7 +152,7 @@ public class ControlTrainTask extends Task<Void>{
 						path.add(u);
 						u = previous.get(u);
 					}
-					
+
 				}
 				Collections.reverse(path);
 				return path;

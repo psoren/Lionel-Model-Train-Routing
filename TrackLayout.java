@@ -20,6 +20,12 @@ public class TrackLayout{
 	String selectionAreaStyle = "-fx-border-color: black;" +
 			"-fx-border-width: 1;" +
 			"-fx-border-style: solid;";
+	
+	TrainsGUI gui;
+	
+	public TrackLayout(TrainsGUI gui){
+		this.gui = gui;
+	}
 
 	public Scene getScene(Button waypointButton, ArrayList<Track> tracks) throws Exception{
 
