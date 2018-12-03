@@ -1,4 +1,6 @@
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
 import javafx.geometry.Point2D;
 
 //The offshoot track is 30 degrees off of straight track
@@ -91,4 +93,25 @@ public class SwitchRightTrack extends Track{
 	Point2D getSideCoords(){
 		return this.localToParent(this.getWidth() + 3, this.getHeight()-37);
 	}
+	
+	@Override
+	public ArrayList<Track> getNeighbors(){
+		ArrayList<Track> neighbors = new ArrayList<Track>();
+		
+		if(this.frontTrack != null){
+			neighbors.add(frontTrack);
+		}
+		
+		if(this.backTrack != null){
+			neighbors.add(backTrack);
+		}
+		
+		if(this.sideTrack != null){
+			neighbors.add(sideTrack);
+		}
+		return neighbors;
+	}
+	
+	
+	
 }

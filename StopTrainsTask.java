@@ -1,11 +1,13 @@
 import java.io.*;
 import javafx.concurrent.*;
 
-public class GetTrainInfoTask extends Task<Void>{
+public class StopTrainsTask extends Task<Void>{
+
 	@Override
 	protected Void call() throws Exception{
 		PrintWriter out = new PrintWriter(TrainsGUI.socket.getOutputStream(), true);
-		out.println("D1010004FBDF");
-		return null;
+		String halt = "D127FEFFFFDDDF";
+		out.println(halt);
+		return null;	
 	}
 }

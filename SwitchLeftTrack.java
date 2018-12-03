@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 
 import javafx.geometry.Point2D;
 
@@ -91,5 +92,23 @@ public class SwitchLeftTrack extends Track{
 
 	public Point2D getSideCoords(){
 		return this.localToParent(this.getWidth()-30, 0);
+	}
+	
+	@Override
+	public ArrayList<Track> getNeighbors(){
+		ArrayList<Track> neighbors = new ArrayList<Track>();
+		
+		if(this.frontTrack != null){
+			neighbors.add(frontTrack);
+		}
+		
+		if(this.backTrack != null){
+			neighbors.add(backTrack);
+		}
+		
+		if(this.sideTrack != null){
+			neighbors.add(sideTrack);
+		}
+		return neighbors;
 	}
 }

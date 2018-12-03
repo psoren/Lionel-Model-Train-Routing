@@ -28,9 +28,6 @@ public class MatchingSensors{
 	final double MATCHINGSENSORS_AREA_HEIGHT = PROGRAM_HEIGHT;
 	final double MATCHINGSENSORS_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
 
-	static ExecutorService executor;
-	static Socket socket = null;
-
 	String mostRecentCommand;
 
 	public Scene getScene(Button waypointBtn, Button trainRunBtn,ArrayList<Track> tracks){
@@ -63,13 +60,13 @@ public class MatchingSensors{
 		int portNumber = 50001;
 
 		try {
-			socket = new Socket(hostName, portNumber);
+			TrainsGUI.socket = new Socket(hostName, portNumber);
 		} 
 		catch (IOException e) {
 			System.err.println("Could not connect to Lionel Wifi");
 		}
 
-		executor = Executors.newFixedThreadPool(4);
+		TrainsGUI.executor = Executors.newFixedThreadPool(4);
 		/****************************************************/
 
 		/***********User Interface Stuff*********************/
@@ -87,7 +84,7 @@ public class MatchingSensors{
 					//The button is a sensor button
 					if(newButton.getId().startsWith("sensor")){
 						IdentifySensorTask identifySensorTask = new IdentifySensorTask(newButton.getId());						
-						executor.submit(identifySensorTask);
+						TrainsGUI.executor.submit(identifySensorTask);
 						//identifySensorTask.setOnFailed(e-> System.out.println("Identify sensor task failed"));
 						//identifySensorTask.setOnSucceeded(e-> System.out.println("Identify sensor task succeeded"));
 					}
@@ -95,7 +92,7 @@ public class MatchingSensors{
 					//The button is a switch button
 					else{						
 						IdentifySwitchTask identifySwitchTask = new IdentifySwitchTask(newButton.getId());
-						executor.submit(identifySwitchTask);
+						TrainsGUI.executor.submit(identifySwitchTask);
 						//identifySwitchTask.setOnFailed(e-> System.out.println("Identify switch task failed"));
 						//identifySwitchTask.setOnSucceeded(e-> System.out.println("Identify switch task succeeded"));
 					}
@@ -124,14 +121,14 @@ public class MatchingSensors{
 
 		//Constantly pinging the sensor and getting input back
 		PingSocketTask pingSocket = new PingSocketTask();
-		executor.submit(pingSocket);
+		TrainsGUI.executor.submit(pingSocket);
 
 		//This will fire whenever the message property of the pingSocketTask changes
 		//which only happens when we send a command to the sensor
 		pingSocket.messageProperty().addListener((obs, oldMsg, newMsg) -> {
-			String[] messages = newMsg.split(" ");
 
 			if(mostRecentCommand == "getInfo"){
+				String[] messages = newMsg.split(" ");
 				ArrayList<RadioButton> sensorButtons = createSensorButtons(messages);
 
 				for(RadioButton rb: sensorButtons){
@@ -141,6 +138,19 @@ public class MatchingSensors{
 				sensorRadioButtonsBox.getChildren().addAll(sensorButtons);
 				mostRecentCommand = "";
 			}
+
+			//A train has passed over a sensor
+			else{
+				if(newMsg.length() >= 140){
+					int sensorId = Integer.parseInt(newMsg.substring(4, 6), 16);
+					int directionNum = Integer.parseInt(newMsg.substring(17,18));
+					String direction = "";
+					if(directionNum == 1){direction = "right";}
+					else if(directionNum == 0){direction = "left";}
+					int trainIdNum = Integer.parseInt(newMsg.substring(18,20),16) -1;
+					System.out.println("The train with ID " + trainIdNum + " passed sensor " + sensorId + " going " + direction);
+				}
+			}
 		});
 
 		//When clicked, this button will generate a list of buttons based
@@ -149,9 +159,8 @@ public class MatchingSensors{
 		getSystemInfoButton.setOnAction(e->{
 			try{
 				GetTrainInfoTask trainInfoTask = new GetTrainInfoTask();
-				executor.submit(trainInfoTask);
+				TrainsGUI.executor.submit(trainInfoTask);
 				trainInfoTask.setOnSucceeded((evt) -> {
-					//System.out.println("The sensorInfoTask has succeeded");
 					mostRecentCommand = "getInfo";
 				});	
 			}

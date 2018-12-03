@@ -29,7 +29,7 @@ public class TrainWaypoint{
 	Pane waypointArea;
 
 	//The list of tracks for each train
-	private ConcurrentHashMap<Integer, ArrayList<Track>> trainWaypoints = new ConcurrentHashMap<Integer, ArrayList<Track>>();
+	public static ConcurrentHashMap<Integer, ArrayList<Track>> trainWaypoints = new ConcurrentHashMap<Integer, ArrayList<Track>>();
 
 	public Scene getScene(Button trackLayoutScreenButton, Button matchSensorsButton,
 			ArrayList<Track> tracks){

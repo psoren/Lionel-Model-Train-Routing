@@ -23,8 +23,6 @@ public abstract class Track extends StackPane{
 	public static Track selected;
 	public static final String selectedStyle = "-fx-border-color: black; -fx-border-width: 2;";
 	public static final String unselectedStyle = "-fx-border-style: none";
-	private static final String sameOrientationStyle = "-fx-border-color: green";
-	private static final String differentOrientationStyle = "-fx-border-color: red";
 
 	/**Non-static fields**/
 	//The number of rotations for a track to be back at the same position
@@ -224,13 +222,6 @@ public abstract class Track extends StackPane{
 		});
 	}
 
-	//A way to highlight the tracks based on their orientation
-	protected void highlightTracks(){
-		//to do this, would need to run DFS on each track and make sure the orientations matched
-		//If they did, could highlight them in green.
-		//If not, highlight them in red.
-	}
-
 	//Rotate the track's image by 360/numRotations degrees clockwise
 	protected void rotateCW(){
 		this.frontOrientation += 360/this.numRotations;
@@ -294,7 +285,6 @@ public abstract class Track extends StackPane{
 
 		if(this.frontTrack != null){
 			this.frontTrack.resetTracks(this);
-
 		}
 		
 		if(this.backTrack != null){
@@ -380,7 +370,7 @@ public abstract class Track extends StackPane{
 		if(this instanceof SwitchRightTrack && ((SwitchRightTrack)this).sideTrack != null){
 			System.out.println("this track is connected on the side to a " + ((SwitchRightTrack)this).sideTrack.getClass());}
 
-		ArrayList<Track> reachable = TrainsGUI.DFSinit(this);
+		ArrayList<Track> reachable = TrackLayout.DFSinit(this);
 		System.out.println("You can reach " + reachable.size() + " tracks from this track.\n");
 	}
 
@@ -405,4 +395,19 @@ public abstract class Track extends StackPane{
 			this.backTrack = null;
 		}	
 	}
+	
+	public ArrayList<Track> getNeighbors(){
+		ArrayList<Track> neighbors = new ArrayList<Track>();
+		
+		if(this.frontTrack != null){
+			neighbors.add(frontTrack);
+		}
+		
+		if(this.backTrack != null){
+			neighbors.add(backTrack);
+		}
+		return neighbors;
+	}
+	
+	
 }

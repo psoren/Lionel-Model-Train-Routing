@@ -11,7 +11,7 @@ public class IdentifySwitchTask extends Task<String>{
 
 	@Override
 	protected String call() throws Exception{
-		PrintWriter out = new PrintWriter(MatchingSensors.socket.getOutputStream(), true);
+		PrintWriter out = new PrintWriter(TrainsGUI.socket.getOutputStream(), true);
 
 		int switchNumberDec = Integer.parseInt(this.switchID.substring(6, 8));
 		String switchNumberHex = Integer.toHexString(switchNumberDec);

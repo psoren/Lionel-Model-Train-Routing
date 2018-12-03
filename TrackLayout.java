@@ -1,5 +1,8 @@
 import java.io.*;
 import java.util.ArrayList;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.Button;
@@ -10,14 +13,14 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 
 public class TrackLayout{
-	
+
 	public Pane trackLayoutArea;
 	public ScrollPane trackSelectionArea;
-	
+
 	String selectionAreaStyle = "-fx-border-color: black;" +
 			"-fx-border-width: 1;" +
 			"-fx-border-style: solid;";
-	
+
 	public Scene getScene(Button waypointButton, ArrayList<Track> tracks) throws Exception{
 
 		final double PROGRAM_HEIGHT = 600;
@@ -32,7 +35,7 @@ public class TrackLayout{
 		//If image source is online, change how we access the pictures
 		//final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
 		final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
-		
+
 		final String STRAIGHT_IMG = "straight.png";
 		final String SENSOR_IMG = "sensor.png";
 		final String SWITCHRIGHT_IMG = "switchRight.png";
@@ -45,6 +48,7 @@ public class TrackLayout{
 		/************Track Layout Area***********/
 		Group group = new Group();
 		trackLayoutArea = new Pane(group);
+		//enableDragging(trackLayoutArea);
 
 		trackLayoutArea.setOnMouseClicked(e->{
 			Track.layoutAreaClicked(new Point2D(e.getX(), e.getY()));
@@ -56,7 +60,7 @@ public class TrackLayout{
 
 
 		/************Track Selection Area***********/
-		
+
 		FileInputStream straightStream = new FileInputStream(BASE + STRAIGHT_IMG);
 		Image straight = new Image(straightStream);		
 		ImageView straightImgVw = new ImageView(straight);
@@ -69,7 +73,7 @@ public class TrackLayout{
 		sensorImgVw.setFitHeight(55);
 		sensorImgVw.setFitWidth(50);
 
-		
+
 		FileInputStream srStream = new FileInputStream(BASE + SWITCHRIGHT_IMG);
 		Image switchRight = new Image(srStream);
 		ImageView switchRightVw = new ImageView(switchRight);
@@ -82,7 +86,7 @@ public class TrackLayout{
 		switchLeftVw.setFitHeight(60);
 		switchLeftVw.setFitWidth(100);
 
-		
+
 		FileInputStream crStream = new FileInputStream(BASE + CURVERIGHT_IMG);
 		Image curveRight = new Image(crStream);
 		ImageView curveRightVw = new ImageView(curveRight);
@@ -207,7 +211,7 @@ public class TrackLayout{
 
 		/*************Organization of selection area************/
 		VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveRightVw, curveLeftVw);
-		
+
 		trackSelectionArea = new ScrollPane();
 		trackSelectionArea.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		trackSelectionArea.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -238,13 +242,13 @@ public class TrackLayout{
 		/*****************Layout Organization****************/
 		HBox topButtons = new HBox(waypointButton);
 		topButtons.setAlignment(Pos.BASELINE_CENTER);
-		
+
 		VBox buttons = new VBox(25, removeButton, removeAllButton);
 		trackLayoutArea.setMaxWidth(900);
 		HBox mainBottomArea = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);	
 		VBox main = new VBox(topButtons, mainBottomArea);
 		Scene trackLayoutScene =  new Scene(main, PROGRAM_WIDTH, PROGRAM_HEIGHT);
-		
+
 		trackLayoutScene.addEventFilter(KeyEvent.KEY_PRESSED, e->{
 			if(Track.selected != null){
 				if(e.getCode()==KeyCode.LEFT){
@@ -256,5 +260,65 @@ public class TrackLayout{
 			}
 		});
 		return trackLayoutScene;	
+	}
+
+	//Helper method for DFS
+	public static ArrayList<Track> DFSinit(Track t){
+		ArrayList<Track> visited = new ArrayList<Track>();
+		DFSrec(visited, t);
+		return visited;
+	}
+
+	//Recursive method for DFS
+	public static void DFSrec(ArrayList<Track> visited, Track t){
+
+		visited.add(t);
+
+		//Need to check sideTrack
+		if(t instanceof SwitchRightTrack){
+			if(((SwitchRightTrack)t).sideTrack != null && 
+					!visited.contains(((SwitchRightTrack)t).sideTrack)){
+				DFSrec(visited, ((SwitchRightTrack)t).sideTrack);
+			}
+		}
+		//Also need to check sideTrack
+		else if(t instanceof SwitchLeftTrack){
+			if(((SwitchLeftTrack)t).sideTrack != null && 
+					!visited.contains(((SwitchLeftTrack)t).sideTrack)){
+				DFSrec(visited, ((SwitchLeftTrack)t).sideTrack);
+			}
+		}
+		if(t.frontTrack != null && !visited.contains(t.frontTrack)){
+			DFSrec(visited, t.frontTrack);
+		}
+		if(t.backTrack != null && !visited.contains(t.backTrack)){
+			DFSrec(visited, t.backTrack);
+		}
+	}
+
+	//This method is used to allow the user to drag on the background
+	//to move around the area in order to input a large track
+	//It needs to be fixed slightly so that you cannot start dragging on the 
+	//background and then continue the drag onto a track
+	//(It should stop once you are dragging on a track)
+	private void enableDragging(Pane p){
+		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
+		p.setOnMousePressed(e -> {
+			mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
+		});
+		p.setOnMouseDragged(e -> {
+			//If we did not click on a track
+			if(Track.getClickedTrack(new Point2D(e.getX(), e.getY())) == null){
+				double deltaX = e.getSceneX() - mouseAnchor.get().getX();
+				double deltaY = e.getSceneY() - mouseAnchor.get().getY();
+
+				//relocate each of the tracks to the opposite of the direction dragged
+				for(Track t: TrainsGUI.tracks){
+					t.relocate(t.getLayoutX() - deltaX, t.getLayoutY() - deltaY);
+
+				}
+				mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
+			}
+		});
 	}
 }

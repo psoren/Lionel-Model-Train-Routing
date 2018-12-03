@@ -32,6 +32,7 @@ public class TrainRunning {
 
 		Button startButton = new Button("Start");
 		Button stopButton = new Button("Stop");
+		stopButton.setDisable(true);
 
 		VBox sideButtons = new VBox(20);
 		sideButtons.getChildren().addAll(startButton, stopButton);
@@ -40,8 +41,19 @@ public class TrainRunning {
 		sideButtons.setMinWidth(SIDEBUTTONS_AREA_WIDTH);
 		sideButtons.setStyle(selectionAreaStyle);
 
-		startButton.setOnAction(e-> System.out.println("Start Button was clicked"));
-		stopButton.setOnAction(e-> System.out.println("Stop Button was clicked"));
+		startButton.setOnAction(e-> {
+			TrainsGUI.executor.submit(new ControlTrainTask(54));
+			startButton.setDisable(true);
+			stopButton.setDisable(false);
+		});
+
+		stopButton.setOnAction(e-> {
+			TrainsGUI.executor.shutdownNow();
+			TrainsGUI.createNewExecutor();
+			TrainsGUI.executor.submit(new StopTrainsTask());
+			startButton.setDisable(false);
+			stopButton.setDisable(true);
+		});
 
 		/**Final Scene Setup**/
 		HBox mainBottomArea = new HBox(trainRunningArea, sideButtons);
