@@ -31,9 +31,9 @@ public class SocketCommunication {
 		executor.submit(pingSocket);
 
 		//This will fire whenever the message property of the pingSocketTask changes
-		//which only happens when we send a command to the sensor
+		//This happens when we are matching sensors
+		//or when a train goes over a sensor
 		pingSocket.messageProperty().addListener((obs, oldMsg, newMsg) -> {
-
 			if(mostRecentCommand == "getInfo"){
 				String[] messages = newMsg.split(" ");
 				gui.matchingSensors.updateUI(messages);

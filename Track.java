@@ -74,7 +74,7 @@ public abstract class Track extends StackPane{
 
 		this.addEventHandler(MouseEvent.MOUSE_PRESSED, e ->{
 
-			this.printDebugInfo();
+			//this.printDebugInfo();
 
 			//Unselect the previous track
 			if(Track.selected != null){

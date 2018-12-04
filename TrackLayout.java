@@ -1,12 +1,8 @@
 import java.io.*;
 import java.util.ArrayList;
-
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.*;
 import javafx.scene.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
@@ -20,9 +16,9 @@ public class TrackLayout{
 	String selectionAreaStyle = "-fx-border-color: black;" +
 			"-fx-border-width: 1;" +
 			"-fx-border-style: solid;";
-	
+
 	TrainsGUI gui;
-	
+
 	public TrackLayout(TrainsGUI gui){
 		this.gui = gui;
 	}
@@ -307,7 +303,7 @@ public class TrackLayout{
 	//It needs to be fixed slightly so that you cannot start dragging on the 
 	//background and then continue the drag onto a track
 	//(It should stop once you are dragging on a track)
-	private void enableDragging(Pane p){
+	/*private void enableDragging(Pane p){
 		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
 		p.setOnMousePressed(e -> {
 			mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
@@ -326,5 +322,5 @@ public class TrackLayout{
 				mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
 			}
 		});
-	}
+	}*/
 }

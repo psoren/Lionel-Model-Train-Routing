@@ -1,5 +1,4 @@
 import java.io.FileNotFoundException;
-
 import javafx.geometry.Point2D;
 
 public class SensorTrack extends Track{

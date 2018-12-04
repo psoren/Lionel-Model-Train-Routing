@@ -1,4 +1,7 @@
 import java.util.*;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -30,7 +33,7 @@ public class TrainRunning {
 
 	public TrainRunning(TrainsGUI gui){
 		this.gui = gui;	
-		trainTasks = new HashMap<Integer, ControlTrainTask>();
+		this.trainTasks = new HashMap<Integer, ControlTrainTask>();
 	}
 
 	public Scene getScene(Button matchSensorsBtn, ArrayList<Track> tracks){
@@ -46,14 +49,43 @@ public class TrainRunning {
 		Button stopButton = new Button("Stop");
 		stopButton.setDisable(true);
 
-		VBox sideButtons = new VBox(20);
-		sideButtons.getChildren().addAll(startButton, stopButton);
+		ToggleGroup speedButtonsGroup = new ToggleGroup();
+
+		RadioButton slowButton = new RadioButton("Slow");
+		slowButton.setId("slow");
+		slowButton.setToggleGroup(speedButtonsGroup);
+
+
+		RadioButton mediumButton = new RadioButton("Medium");
+		mediumButton.setId("medium");
+		mediumButton.setToggleGroup(speedButtonsGroup);
+
+
+		RadioButton fastButton = new RadioButton("Fast");
+		fastButton.setId("fast");
+		fastButton.setToggleGroup(speedButtonsGroup);
+
+		speedButtonsGroup.selectToggle(slowButton);
+
+		speedButtonsGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
+				if(new_toggle != null){
+					RadioButton rb = (RadioButton)new_toggle;
+					updateTrainSpeed(rb.getId());
+				}
+			}
+		});
+
+		HBox speedButtons = new HBox(20, slowButton, mediumButton, fastButton);
+		HBox runButtons = new HBox(20, startButton, stopButton);
+
+		VBox sideButtons = new VBox(20, runButtons, speedButtons);
 		sideButtons.setAlignment(Pos.BASELINE_CENTER);
 		sideButtons.setMinHeight(SIDEBUTTONS_AREA_HEIGHT);
 		sideButtons.setMinWidth(SIDEBUTTONS_AREA_WIDTH);
 		sideButtons.setStyle(selectionAreaStyle);
 
-
+		//TODO
 		//Currently we are only starting one train
 		//Once we add the ability to add the train
 		//IDs to the waypoint screen, we can use that
@@ -61,10 +93,17 @@ public class TrainRunning {
 		//(That will not be hard)
 		startButton.setOnAction(e-> {
 			ControlTrainTask controlTrainTask54 = new ControlTrainTask(54);
+
+			controlTrainTask54.setOnSucceeded(evt->{
+				System.out.println("controlTrainTask has succeeded");
+			});
+
+			controlTrainTask54.setOnFailed(evt->{
+				System.out.println("controlTrainTask has failed");
+			});
+
 			SocketCommunication.executor.submit(controlTrainTask54);
-
-			trainTasks.put(54, controlTrainTask54);
-
+			this.trainTasks.put(54, controlTrainTask54);
 			startButton.setDisable(true);
 			stopButton.setDisable(false);
 		});
@@ -84,26 +123,21 @@ public class TrainRunning {
 	}
 
 	//There is new sensor information
-	public void sensorInfo(int sensorID, String direction, int trainIDNum){
-
-		System.out.println("searching for trainid " + trainIDNum + " in trainTasks");
-
-		System.out.println("trainTasks toString(): " + trainTasks.toString());
-
-		
-		
+	public void sensorInfo(int sensorID, String direction, int trainIDNum){		
 		ControlTrainTask task = trainTasks.get(trainIDNum);
-
-		if(task == null){
-			System.out.println("Could not find the specified train in trainTasks");
-		}
-		else{
-			System.out.println("A sensor event has occurred.");
+		if(task != null){
 			task.sensorEvent(sensorID, direction);
 		}
-
+		else{
+			System.out.println("Could not find the specified train in trainTasks");
+		}
 	}
 
+	private void updateTrainSpeed(String id){
+		Collection<ControlTrainTask> tasks = trainTasks.values();
 
-
+		for(ControlTrainTask t: tasks){
+			t.updateSpeed(id);
+		}
+	}
 }
