@@ -154,6 +154,7 @@ public class ControlTrainTask extends Task<Void>{
 				}
 			}
 		}
+		System.out.println("Switches have been oriented");
 	}
 
 	//This runs the trains on a path without a switchTrack
@@ -184,13 +185,12 @@ public class ControlTrainTask extends Task<Void>{
 
 		for(int i = 0; i < path.size();i++){
 			if(path.get(i) instanceof SwitchRightTrack){
+				
 				//Going from sideTrack to frontTrack
 				if(path.get(i-1) == ((SwitchRightTrack)path.get(i)).sideTrack &&
 						path.get(i+1) == ((SwitchRightTrack)path.get(i)).frontTrack){
 
-
 					System.out.println("Going from sideTrack to frontTrack");
-
 					int currentSensorPassed = this.lastSensorPassed;
 					out.println(this.speed);
 
@@ -213,9 +213,7 @@ public class ControlTrainTask extends Task<Void>{
 						path.get(i+1) == ((SwitchRightTrack)path.get(i)).sideTrack){
 
 					System.out.println("Going from frontTrack to sideTrack");
-
 					int currentSensorPassed = this.lastSensorPassed;
-
 					out.println(reverse);
 					Thread.sleep(500);
 					out.println(this.speed);
@@ -237,7 +235,7 @@ public class ControlTrainTask extends Task<Void>{
 				else{
 					System.out.println("It is a switchTrack, but we are going straight through it");
 					orientSwitches(path);
-					//out.println(this.speed);
+					out.println(this.speed);
 					runStraightTrackPath(endSensor);
 				}
 			}
@@ -257,7 +255,7 @@ public class ControlTrainTask extends Task<Void>{
 	}
 
 	//This method determines if the train needs to change direction based on
-	//the placement of the tracks in the current path and the previous path
+	//the placement of the tracks in the current path and tthe previous path
 	private boolean changeTrainDirection(int currentPathNum){
 		ArrayList<Track> currentPath = this.trainPaths.get(currentPathNum);
 		ArrayList<Track> previousPath;
@@ -278,6 +276,11 @@ public class ControlTrainTask extends Task<Void>{
 		System.out.println("-----------------------------");
 		System.out.println("This train: " + this.trainID + " passed over sensor " + sensorID + " going " + direction);
 		System.out.println("-----------------------------");
+		
+		
+		//Draw this on the GUI
+		
+		
 	}
 
 	//This method is called whenever the user changes the speed in the UI
@@ -302,11 +305,11 @@ public class ControlTrainTask extends Task<Void>{
 	/*private String getFormattedIDDec(){	
 		if(Integer.toString(this.trainID).length() == 1){return "0" + this.trainID;}
 		else{return Integer.toString(this.trainID);}	
-	}
+	}*/
 
 	//This method gets the formatted string of this train's ID
 	//in hexadecimal and pads it with 0s if necessary
-	private String getFormattedIDHEx(){
+	/*private String getFormattedIDHEx(){
 		String hexID = Integer.toHexString(this.trainID);
 		if(hexID.length() == 1){return "0" + hexID;}
 		else{return hexID;}	

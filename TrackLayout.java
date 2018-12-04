@@ -1,5 +1,8 @@
 import java.io.*;
 import java.util.ArrayList;
+import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -50,8 +53,6 @@ public class TrackLayout{
 		/************Track Layout Area***********/
 		Group group = new Group();
 		trackLayoutArea = new Pane(group);
-		//enableDragging(trackLayoutArea);
-
 		trackLayoutArea.setOnMouseClicked(e->{
 			Track.layoutAreaClicked(new Point2D(e.getX(), e.getY()));
 		});
@@ -245,7 +246,23 @@ public class TrackLayout{
 		HBox topButtons = new HBox(waypointButton);
 		topButtons.setAlignment(Pos.BASELINE_CENTER);
 
-		VBox buttons = new VBox(25, removeButton, removeAllButton);
+
+		CheckBox enableDraggingCheckBox = new CheckBox("Move Around");
+		enableDraggingCheckBox.setSelected(false);
+
+		enableDraggingCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val){
+				if(new_val){
+					enableDragging(trackLayoutArea);
+
+				}
+				else{
+					disableDragging(trackLayoutArea);
+				}	
+			}
+		});
+
+		VBox buttons = new VBox(25, removeButton, removeAllButton, enableDraggingCheckBox);
 		trackLayoutArea.setMaxWidth(900);
 		HBox mainBottomArea = new HBox(25, trackLayoutArea, trackSelectionArea, buttons);	
 		VBox main = new VBox(topButtons, mainBottomArea);
@@ -303,7 +320,7 @@ public class TrackLayout{
 	//It needs to be fixed slightly so that you cannot start dragging on the 
 	//background and then continue the drag onto a track
 	//(It should stop once you are dragging on a track)
-	/*private void enableDragging(Pane p){
+	private void enableDragging(Pane p){
 		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
 		p.setOnMousePressed(e -> {
 			mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
@@ -322,5 +339,10 @@ public class TrackLayout{
 				mouseAnchor.set(new Point2D(e.getSceneX(), e.getSceneY()));
 			}
 		});
-	}*/
+	}
+
+	private void disableDragging(Pane p){
+		p.setOnMousePressed(e -> {});
+		p.setOnMouseDragged(e -> {});
+	}
 }
