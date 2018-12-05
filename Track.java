@@ -73,19 +73,24 @@ public abstract class Track extends StackPane{
 
 			//this.printDebugInfo();
 
-			//Unselect the previous track
-			if(Track.selected != null){
-				selected.setStyle(unselectedStyle);
-			}
+			//Only allow user to select a track when
+			//they are in the trackLayout screen
+			if(TrainsGUI.currentScene.equals("trackLayout")){
 
-			//If the track is already selected, unselect it
-			if(Track.selected == this){
-				Track.selected = null;
-			}
-			else{
-				Track.selected = this;
-				Track.selected.setStyle(selectedStyle);
-			}
+				//Unselect the previous track
+				if(Track.selected != null){
+					selected.setStyle(unselectedStyle);
+				}
+
+				//If the track is already selected, unselect it
+				if(Track.selected == this){
+					Track.selected = null;
+				}
+				else{
+					Track.selected = this;
+					Track.selected.setStyle(selectedStyle);
+				}
+			}		
 		});
 
 		//Context menu stuff
@@ -258,7 +263,7 @@ public abstract class Track extends StackPane{
 	//is deleted or disconnected
 	public void unlockConnectedTracks(){
 		if(this instanceof SwitchLeftTrack || this instanceof SwitchRightTrack){
-			
+
 			Track sTrack = null;
 
 			if(this instanceof SwitchLeftTrack){
@@ -283,11 +288,11 @@ public abstract class Track extends StackPane{
 		if(this.frontTrack != null){
 			this.frontTrack.resetTracks(this);
 		}
-		
+
 		if(this.backTrack != null){
 			this.backTrack.resetTracks(this);
 		}
-		
+
 		//This track is now isolated, unlock it
 		if(this.frontTrack != null && this.frontTrack.isIsolated()){
 			this.frontTrack.locked = false;
@@ -302,7 +307,7 @@ public abstract class Track extends StackPane{
 
 		this.frontTrack = null;
 		this.backTrack = null;
-		
+
 		if(this.isIsolated()){
 			this.locked = false;
 			this.disableDisconnectTrack();
@@ -382,7 +387,7 @@ public abstract class Track extends StackPane{
 	boolean isIsolated(){
 		return this.frontTrack == null && this.backTrack == null;
 	}
-	
+
 	//A method called when disconnecting tracks
 	protected void resetTracks(Track t){
 		if(this.frontTrack == t){
@@ -392,19 +397,17 @@ public abstract class Track extends StackPane{
 			this.backTrack = null;
 		}	
 	}
-	
+
 	public ArrayList<Track> getNeighbors(){
 		ArrayList<Track> neighbors = new ArrayList<Track>();
-		
+
 		if(this.frontTrack != null){
 			neighbors.add(frontTrack);
 		}
-		
+
 		if(this.backTrack != null){
 			neighbors.add(backTrack);
 		}
 		return neighbors;
 	}
-	
-	
 }

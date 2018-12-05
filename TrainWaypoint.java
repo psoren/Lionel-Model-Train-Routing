@@ -31,7 +31,7 @@ public class TrainWaypoint{
 
 	//The list of tracks for each train
 	public static ConcurrentHashMap<Integer, ArrayList<Track>> trainWaypoints = new ConcurrentHashMap<Integer, ArrayList<Track>>();
-
+	
 	public TrainWaypoint(TrainsGUI gui){
 		this.gui = gui;
 	}

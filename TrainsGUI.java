@@ -23,11 +23,14 @@ public class TrainsGUI extends Application{
 	TrainRunning trainRunning;
 	SocketCommunication socketCommunication;
 
-	Scene trainWaypointScene;
 	Scene trackLayoutScene;
+	Scene trainWaypointScene;
 	Scene matchingSensorScene;
 	Scene trainRunningScene;
+	
 	Stage mainStage;
+	
+	public static String currentScene = "trackLayout";
 
 	@Override
 	public void start(Stage primaryStage) throws Exception{
@@ -38,6 +41,7 @@ public class TrainsGUI extends Application{
 		trackLayoutScene = trackLayout.getScene(trackLayoutTotrainWaypointButton, tracks);
 
 		trackLayoutTotrainWaypointButton.setOnAction(e->{
+			this.currentScene = "trainWaypoint";
 
 			//If all of the tracks are not connected, do not let the 
 			//user move on to the next screen
@@ -70,12 +74,14 @@ public class TrainsGUI extends Application{
 		trainWaypointScene = trainWaypoint.getScene(trainWaypointToTrackLayoutButton, trainWaypointToMatchingSensorsButton, tracks);
 
 		trainWaypointToTrackLayoutButton.setOnAction(e->{
+			this.currentScene = "trackLaoyout";
 			mainStage.setScene(trackLayoutScene);
 			trackLayout.trackLayoutArea.getChildren().clear();
 			for(Track t: tracks){trackLayout.trackLayoutArea.getChildren().add(t);}
 		});
 
 		trainWaypointToMatchingSensorsButton.setOnAction(e ->{
+			this.currentScene = "matchingSensor";
 			mainStage.setScene(matchingSensorScene);
 			for(Track t: tracks){matchingSensors.matchingSensorsArea.getChildren().add(t);}
 		});
@@ -86,12 +92,14 @@ public class TrainsGUI extends Application{
 		matchingSensorScene = matchingSensors.getScene(matchingSensorsToTrainWaypointButton, matchingSensorsToTrainRunningButton, tracks);
 
 		matchingSensorsToTrainWaypointButton.setOnAction(e-> {
+			this.currentScene = "trainWaypoint";
 			mainStage.setScene(trainWaypointScene);			
 			trainWaypoint.waypointArea.getChildren().clear();
 			for(Track t: tracks){trainWaypoint.waypointArea.getChildren().add(t);}
 		});
 
 		matchingSensorsToTrainRunningButton.setOnAction(e->{
+			this.currentScene = "trainRunning";
 			mainStage.setScene(trainRunningScene);
 			trainRunning.trainRunningArea.getChildren().clear();
 			for(Track t: tracks){trainRunning.trainRunningArea.getChildren().add(t);}
@@ -103,9 +111,14 @@ public class TrainsGUI extends Application{
 		trainRunningScene = trainRunning.getScene(trainRunningToMatchSensorsBtn, tracks);
 
 		trainRunningToMatchSensorsBtn.setOnAction(e->{
+			this.currentScene = "matchingSensor";
 			mainStage.setScene(matchingSensorScene);
 			matchingSensors.matchingSensorsArea.getChildren().clear();
-			for(Track t: tracks){matchingSensors.matchingSensorsArea.getChildren().add(t);}
+			for(Track t: tracks){
+				t.setStyle(Track.unselectedStyle);
+				Track.selected = null;
+				matchingSensors.matchingSensorsArea.getChildren().add(t);
+			}
 		});
 
 		socketCommunication = new SocketCommunication(this);
