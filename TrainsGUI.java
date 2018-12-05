@@ -5,7 +5,6 @@ import javafx.scene.control.*;
 import javafx.stage.*;
 
 //TODO: Let the user add train ID numbers for each train to the trainWaypoint screen
-//TODO Make sure that we can get information from the sensors
 
 public class TrainsGUI extends Application{
 

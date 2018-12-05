@@ -55,11 +55,9 @@ public class TrainRunning {
 		slowButton.setId("slow");
 		slowButton.setToggleGroup(speedButtonsGroup);
 
-
 		RadioButton mediumButton = new RadioButton("Medium");
 		mediumButton.setId("medium");
 		mediumButton.setToggleGroup(speedButtonsGroup);
-
 
 		RadioButton fastButton = new RadioButton("Fast");
 		fastButton.setId("fast");
@@ -92,7 +90,7 @@ public class TrainRunning {
 		//information instead of this hardcoded one
 		//(That will not be hard)
 		startButton.setOnAction(e-> {
-			ControlTrainTask controlTrainTask54 = new ControlTrainTask(54);
+			ControlTrainTask controlTrainTask54 = new ControlTrainTask(54, gui);
 
 			controlTrainTask54.setOnSucceeded(evt->{
 				System.out.println("controlTrainTask has succeeded");

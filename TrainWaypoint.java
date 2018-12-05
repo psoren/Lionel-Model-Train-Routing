@@ -1,6 +1,5 @@
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javafx.beans.value.*;
 import javafx.geometry.*;
 import javafx.scene.*;
@@ -192,8 +191,8 @@ public class TrainWaypoint{
 			String buttonStyle = ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getStyle();
 			Circle circ = new Circle(t.getLayoutX() + t.getWidth()/2, t.getLayoutY() + t.getHeight()/2, 20);
 			circ.setStyle("-fx-fill: " + buttonStyle.substring(22));
-			Text num = new Text(t.getLayoutX() + t.getWidth()/2, t.getLayoutY() + t.getHeight()/2, Integer.toString(counter));
-			String textStyle = "-fx-font: 20px Arial; -fx-stroke: white; -fx-stroke-width: 3;";
+			Text num = new Text(t.getLayoutX() + t.getWidth()/2 - 5, t.getLayoutY() + t.getHeight()/2 + 5, Integer.toString(counter));
+			String textStyle = "-fx-font: 20px Arial; -fx-stroke: white; -fx-stroke-width: 2;";
 			num.setStyle(textStyle);
 			waypointArea.getChildren().addAll(circ, num);
 			counter++;
@@ -206,5 +205,12 @@ public class TrainWaypoint{
 		int g = (int)(Math.random()*255);
 		int b = (int)(Math.random()*255);
 		return "-fx-background-color: rgb("+r+","+g+","+b+");";
+	}
+
+	//This method gets the color of the specified button
+	//Currently just getting the style of the selected
+	//In the future, should be able to get this based on ID
+	public String getColor(int num){
+		return ((RadioButton)trainRadioButtonsToggleGroup.getSelectedToggle()).getStyle();
 	}
 }

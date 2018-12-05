@@ -63,7 +63,6 @@ public class TrackLayout{
 
 
 		/************Track Selection Area***********/
-
 		FileInputStream straightStream = new FileInputStream(BASE + STRAIGHT_IMG);
 		Image straight = new Image(straightStream);		
 		ImageView straightImgVw = new ImageView(straight);
@@ -73,9 +72,8 @@ public class TrackLayout{
 		FileInputStream sensorStream = new FileInputStream(BASE + SENSOR_IMG);
 		Image sensor = new Image(sensorStream);
 		ImageView sensorImgVw = new ImageView(sensor);
-		sensorImgVw.setFitHeight(55);
-		sensorImgVw.setFitWidth(50);
-
+		sensorImgVw.setFitHeight(50);
+		sensorImgVw.setFitWidth(55);
 
 		FileInputStream srStream = new FileInputStream(BASE + SWITCHRIGHT_IMG);
 		Image switchRight = new Image(srStream);
@@ -88,7 +86,6 @@ public class TrackLayout{
 		ImageView switchLeftVw = new ImageView(switchLeft);
 		switchLeftVw.setFitHeight(60);
 		switchLeftVw.setFitWidth(100);
-
 
 		FileInputStream crStream = new FileInputStream(BASE + CURVERIGHT_IMG);
 		Image curveRight = new Image(crStream);
@@ -254,7 +251,6 @@ public class TrackLayout{
 			public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val){
 				if(new_val){
 					enableDragging(trackLayoutArea);
-
 				}
 				else{
 					disableDragging(trackLayoutArea);
@@ -289,6 +285,8 @@ public class TrackLayout{
 	}
 
 	//Recursive method for DFS
+	//This method is used to make sure that all of the tracks
+	//on the TrackLayout screen are connected
 	public static void DFSrec(ArrayList<Track> visited, Track t){
 
 		visited.add(t);
@@ -317,9 +315,6 @@ public class TrackLayout{
 
 	//This method is used to allow the user to drag on the background
 	//to move around the area in order to input a large track
-	//It needs to be fixed slightly so that you cannot start dragging on the 
-	//background and then continue the drag onto a track
-	//(It should stop once you are dragging on a track)
 	private void enableDragging(Pane p){
 		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
 		p.setOnMousePressed(e -> {

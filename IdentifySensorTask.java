@@ -49,7 +49,7 @@ public class IdentifySensorTask extends Task<Void>{
 
 		//Turn on and off the LED to identify the track
 		out.println(turnOnLEDCommand);	
-		Thread.sleep(1000);
+		Thread.sleep(3000);
 		out.println(turnOffLEDCommand);	
 
 		return null;

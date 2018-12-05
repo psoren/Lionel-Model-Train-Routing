@@ -1,6 +1,9 @@
 import java.io.*;
 import java.util.*;
 import javafx.concurrent.*;
+import javafx.scene.control.RadioButton;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 
 public class ControlTrainTask extends Task<Void>{
 
@@ -23,9 +26,13 @@ public class ControlTrainTask extends Task<Void>{
 	//Initialized to -1 because no sensor has a value of -1
 	int lastSensorPassed = -1;
 
-	public ControlTrainTask(int tID){
+	//The main class
+	TrainsGUI gui;
+
+	public ControlTrainTask(int tID, TrainsGUI gui){
 		this.trainID = tID;
 		this.speed = this.spd1;
+		this.gui = gui;
 	}
 
 	PrintWriter out;
@@ -54,7 +61,7 @@ public class ControlTrainTask extends Task<Void>{
 			//Now create paths based on the waypoints
 			trainPaths = createTrainPaths(trainWaypoints);
 
-			//Now we have a list of lists of tracks that are 
+			//Now we have a list of lists of tracks that are
 			//paths from one waypoint to another
 			int currentPathNum = 0;
 			boolean starting = true;
@@ -185,7 +192,7 @@ public class ControlTrainTask extends Task<Void>{
 
 		for(int i = 0; i < path.size();i++){
 			if(path.get(i) instanceof SwitchRightTrack){
-				
+
 				//Going from sideTrack to frontTrack
 				if(path.get(i-1) == ((SwitchRightTrack)path.get(i)).sideTrack &&
 						path.get(i+1) == ((SwitchRightTrack)path.get(i)).frontTrack){
@@ -276,16 +283,32 @@ public class ControlTrainTask extends Task<Void>{
 		System.out.println("-----------------------------");
 		System.out.println("This train: " + this.trainID + " passed over sensor " + sensorID + " going " + direction);
 		System.out.println("-----------------------------");
-		
-		
+
+
 		//Draw this on the GUI
-		
-		
+		String trainColor = gui.trainWaypoint.getColor(54);
+		SensorTrack sensor = null;
+		String sensorString = "sensor" + sensorID;
+
+		//get the specified sensor
+		for(Track t: TrainsGUI.tracks){
+			if(t instanceof SensorTrack && ((SensorTrack)t).lionelID.equals(sensorString)){
+				sensor = (SensorTrack)t;
+			}
+		}
+
+		Circle circ = new Circle(sensor.getLayoutX() + sensor.getWidth()/2, sensor.getLayoutY() + sensor.getHeight()/2, 20);		
+		circ.setStyle("-fx-fill: " + trainColor.substring(22));
+		Text num = new Text(sensor.getLayoutX() + sensor.getWidth()/2 - 10, sensor.getLayoutY() + sensor.getHeight()/2 + 7, Integer.toString(this.trainID));
+		String textStyle = "-fx-font: 20px Arial; -fx-stroke: white; -fx-stroke-width: 2;";
+		num.setStyle(textStyle);
+		gui.trainRunning.trainRunningArea.getChildren().clear();
+		gui.trainRunning.trainRunningArea.getChildren().addAll(TrainsGUI.tracks);
+		gui.trainRunning.trainRunningArea.getChildren().addAll(circ, num);
 	}
 
 	//This method is called whenever the user changes the speed in the UI
 	public void updateSpeed(String id){
-
 		if(id.equals("slow")){
 			this.speed = this.spd1;
 		}
@@ -302,18 +325,18 @@ public class ControlTrainTask extends Task<Void>{
 
 	//This method gets the formatted string of this train's ID
 	//in decimal and pads it with 0s if necessary
-	/*private String getFormattedIDDec(){	
+	private String getFormattedIDDec(){	
 		if(Integer.toString(this.trainID).length() == 1){return "0" + this.trainID;}
 		else{return Integer.toString(this.trainID);}	
-	}*/
+	}
 
 	//This method gets the formatted string of this train's ID
 	//in hexadecimal and pads it with 0s if necessary
-	/*private String getFormattedIDHEx(){
+	private String getFormattedIDHEx(){
 		String hexID = Integer.toHexString(this.trainID);
 		if(hexID.length() == 1){return "0" + hexID;}
 		else{return hexID;}	
-	}*/
+	}
 
 	//This method takes in two tracks and returns the path based on the
 	//shortest distance between those two paths
