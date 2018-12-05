@@ -12,9 +12,6 @@ import javafx.scene.shape.Rectangle;
 
 public abstract class Track extends StackPane{
 
-	//Figure out how to ensure that you cant snap a track
-	//to a place that already has a track connected to it
-
 	/**Constants**/
 	private int SNAPTOGETHERDISTANCE = 40;
 

@@ -52,7 +52,11 @@ public class TrainsGUI extends Application{
 				if(reachableTracks.size() == tracks.size()){
 					mainStage.setScene(trainWaypointScene);
 					trainWaypoint.waypointArea.getChildren().clear();
-					for(Track t: tracks){trainWaypoint.waypointArea.getChildren().add(t);}
+					for(Track t: tracks){
+						t.setStyle(Track.unselectedStyle);
+						Track.selected = null;
+						trainWaypoint.waypointArea.getChildren().add(t);
+					}
 				}
 				else{
 					Popup.display("Please make sure that all of your tracks are connected", "Connect Your Tracks");

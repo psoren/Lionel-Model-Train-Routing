@@ -92,13 +92,7 @@ public class TrainRunning {
 		startButton.setOnAction(e-> {
 			ControlTrainTask controlTrainTask54 = new ControlTrainTask(54, gui);
 
-			controlTrainTask54.setOnSucceeded(evt->{
-				System.out.println("controlTrainTask has succeeded");
-			});
-
-			controlTrainTask54.setOnFailed(evt->{
-				System.out.println("controlTrainTask has failed");
-			});
+			controlTrainTask54.setOnFailed(evt-> System.out.println("controlTrainTask has failed"));
 
 			SocketCommunication.executor.submit(controlTrainTask54);
 			this.trainTasks.put(54, controlTrainTask54);
@@ -127,7 +121,7 @@ public class TrainRunning {
 			task.sensorEvent(sensorID, direction);
 		}
 		else{
-			System.out.println("Could not find the specified train in trainTasks");
+			System.out.println("The given task is not in the HashMap TrainTasks in TrainRunning.java");
 		}
 	}
 

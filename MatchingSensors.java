@@ -24,13 +24,13 @@ public class MatchingSensors{
 
 	final double MATCHINGSENSORS_AREA_HEIGHT = PROGRAM_HEIGHT;
 	final double MATCHINGSENSORS_AREA_WIDTH = 0.8*PROGRAM_WIDTH;
-	
+
 	TrainsGUI gui;
-	
+
 	public MatchingSensors(TrainsGUI gui){
 		this.gui = gui;
 	}
-	
+
 	public Scene getScene(Button waypointBtn, Button trainRunBtn,ArrayList<Track> tracks){
 
 		/***********General Setup******************************/
@@ -64,7 +64,11 @@ public class MatchingSensors{
 		//Whenever the selected radio button changes, this event will be called	
 		sensorRadioButtonsToggleGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
-				if(new_toggle != null){		
+				if(new_toggle != null){	
+
+					for(Track t: TrainsGUI.tracks){
+						t.setStyle(Track.unselectedStyle);
+					}
 
 					RadioButton newButton = (RadioButton)new_toggle;
 

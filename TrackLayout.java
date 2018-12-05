@@ -73,7 +73,7 @@ public class TrackLayout{
 		Image sensor = new Image(sensorStream);
 		ImageView sensorImgVw = new ImageView(sensor);
 		sensorImgVw.setFitHeight(50);
-		sensorImgVw.setFitWidth(55);
+		sensorImgVw.setFitWidth(50);
 
 		FileInputStream srStream = new FileInputStream(BASE + SWITCHRIGHT_IMG);
 		Image switchRight = new Image(srStream);
@@ -198,7 +198,7 @@ public class TrackLayout{
 				}
 				//Shift to account for width and height of track
 				track.setLayoutX(track.getLayoutX() - track.getWidth()/2);
-				track.setLayoutY(track.getLayoutY() - track.getHeight()/2);
+				track.setLayoutY(track.getLayoutY() - track.getHeight()/2 - 20);
 
 				tracks.add(track);
 				trackLayoutArea.getChildren().add(track);

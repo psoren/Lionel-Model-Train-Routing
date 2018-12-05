@@ -91,7 +91,7 @@ public class SwitchRightTrack extends Track{
 	}
 
 	Point2D getSideCoords(){
-		return this.localToParent(this.getWidth() + 3, this.getHeight()-37);
+		return this.localToParent(this.getWidth() + 3, this.getHeight()-32);
 	}
 	
 	@Override
