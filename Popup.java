@@ -1,3 +1,6 @@
+//Written by Parker Sorenson
+//CS440 Fall 2018
+
 import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.control.*;

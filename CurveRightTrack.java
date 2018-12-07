@@ -1,5 +1,7 @@
-import java.io.FileNotFoundException;
+//Written by Parker Sorenson
+//CS440 Fall 2018
 
+import java.io.FileNotFoundException;
 import javafx.geometry.Point2D;
 
 public class CurveRightTrack extends Track{

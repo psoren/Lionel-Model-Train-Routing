@@ -1,3 +1,6 @@
+//Written by Parker Sorenson
+//CS440 Fall 2018
+
 import java.util.*;
 
 import javafx.beans.value.ChangeListener;

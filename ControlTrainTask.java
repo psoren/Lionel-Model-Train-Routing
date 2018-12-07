@@ -1,7 +1,9 @@
+//Written by Parker Sorenson
+//CS440 Fall 2018
+
 import java.io.*;
 import java.util.*;
 import javafx.concurrent.*;
-import javafx.scene.control.RadioButton;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 

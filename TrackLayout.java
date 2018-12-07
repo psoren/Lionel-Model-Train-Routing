@@ -1,3 +1,6 @@
+//Written by Parker Sorenson
+//CS440 Fall 2018
+
 import java.io.*;
 import java.util.ArrayList;
 import javafx.beans.property.*;
