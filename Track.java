@@ -60,7 +60,7 @@ public abstract class Track extends StackPane{
 		this.backTrack = null;
 		this.locked = false;
 
-		FileInputStream stream = new FileInputStream(imageSource);
+		InputStream stream = getClass().getResourceAsStream(imageSource);
 		Image image = new Image(stream);		
 		ImageView imageView = new ImageView(image);
 

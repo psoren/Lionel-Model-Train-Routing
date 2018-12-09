@@ -42,7 +42,7 @@ public class TrackLayout{
 
 		//If image source is online, change how we access the pictures
 		//final String BASE = "https://raw.githubusercontent.com/psoren/TrainsGUI/master/assets/";
-		final String BASE = "/Users/parker/Documents/Courses/senior/CS440/TrainsGUI/src/assets/";
+		final String BASE = "assets/";
 
 		final String STRAIGHT_IMG = "straight.png";
 		final String SENSOR_IMG = "sensor.png";
@@ -66,37 +66,43 @@ public class TrackLayout{
 
 
 		/************Track Selection Area***********/
-		FileInputStream straightStream = new FileInputStream(BASE + STRAIGHT_IMG);
+		//FileInputStream straightStream = new FileInputStream(BASE + STRAIGHT_IMG);
+		InputStream straightStream = getClass().getResourceAsStream(BASE + STRAIGHT_IMG);
 		Image straight = new Image(straightStream);		
 		ImageView straightImgVw = new ImageView(straight);
 		straightImgVw.setFitHeight(50);
 		straightImgVw.setFitWidth(100);
 
-		FileInputStream sensorStream = new FileInputStream(BASE + SENSOR_IMG);
+		//FileInputStream sensorStream = new FileInputStream(BASE + SENSOR_IMG);
+		InputStream sensorStream = getClass().getResourceAsStream(BASE + SENSOR_IMG);
 		Image sensor = new Image(sensorStream);
 		ImageView sensorImgVw = new ImageView(sensor);
 		sensorImgVw.setFitHeight(50);
 		sensorImgVw.setFitWidth(50);
 
-		FileInputStream srStream = new FileInputStream(BASE + SWITCHRIGHT_IMG);
+		//FileInputStream srStream = new FileInputStream(BASE + SWITCHRIGHT_IMG);
+		InputStream srStream = getClass().getResourceAsStream(BASE + SWITCHRIGHT_IMG);
 		Image switchRight = new Image(srStream);
 		ImageView switchRightVw = new ImageView(switchRight);
 		switchRightVw.setFitHeight(60);
 		switchRightVw.setFitWidth(100);
 
-		FileInputStream slStream = new FileInputStream(BASE + SWITCHLEFT_IMG);
+		//FileInputStream slStream = new FileInputStream(BASE + SWITCHLEFT_IMG);
+		InputStream slStream = getClass().getResourceAsStream(BASE + SWITCHLEFT_IMG);
 		Image switchLeft = new Image(slStream);
 		ImageView switchLeftVw = new ImageView(switchLeft);
 		switchLeftVw.setFitHeight(60);
 		switchLeftVw.setFitWidth(100);
 
-		FileInputStream crStream = new FileInputStream(BASE + CURVERIGHT_IMG);
+		//FileInputStream crStream = new FileInputStream(BASE + CURVERIGHT_IMG);
+		InputStream crStream = getClass().getResourceAsStream(BASE + CURVERIGHT_IMG);
 		Image curveRight = new Image(crStream);
 		ImageView curveRightVw = new ImageView(curveRight);
 		curveRightVw.setFitHeight(60);
 		curveRightVw.setFitWidth(100);
 
-		FileInputStream clStream = new FileInputStream(BASE + CURVELEFT_IMG);
+		//FileInputStream clStream = new FileInputStream(BASE + CURVELEFT_IMG);
+		InputStream clStream = getClass().getResourceAsStream(BASE + CURVELEFT_IMG);
 		Image curveLeft = new Image(clStream);
 		ImageView curveLeftVw = new ImageView(curveLeft);
 		curveLeftVw.setFitHeight(60);
@@ -115,6 +121,7 @@ public class TrackLayout{
 			e.consume();
 		});
 
+		
 		sensorImgVw.setOnDragDetected(e->{
 			Dragboard db = sensorImgVw.startDragAndDrop(TransferMode.ANY);
 			ClipboardContent content = new ClipboardContent();
@@ -214,7 +221,8 @@ public class TrackLayout{
 
 		/*************Organization of selection area************/
 		VBox vbox = new VBox(20, straightImgVw, sensorImgVw, switchRightVw, switchLeftVw, curveRightVw, curveLeftVw);
-
+		//VBox vbox = new VBox(20, straightImgVw);
+		
 		trackSelectionArea = new ScrollPane();
 		trackSelectionArea.setVbarPolicy(ScrollBarPolicy.ALWAYS);
 		trackSelectionArea.setHbarPolicy(ScrollBarPolicy.NEVER);
