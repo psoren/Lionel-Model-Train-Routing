@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?scenebuilder-stylesheet vista.css?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="view2" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.View2Controller">
+  <children>
+      <AnchorPane style="-fx-background-image: url(&quot;/Users/Brita/eclipse-workspace/CS440/res/R1_Grid-1.jpg&quot;);">
+         <children>
+          <Button layoutX="26.0" layoutY="37.0" mnemonicParsing="false" onAction="#previousPane" text="Back to Menu" textFill="#f5f1f1">
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Button>
+            <Pane fx:id="trackLayoutArea" layoutX="26.0" layoutY="91.0" opacity="0.65" prefHeight="495.0" prefWidth="738.0" style="-fx-background-image: url('file:C:/Users/Brita/eclipse-workspace/CS440/res/R1_Grid-1.jpg'); -fx-background-insets: 1;" AnchorPane.bottomAnchor="14.0" AnchorPane.topAnchor="91.0" />
+            <VBox fx:id="trackSelectionArea" layoutX="775.0" layoutY="96.0" prefHeight="486.0" prefWidth="107.0" style="-fx-border-color: black;">
+               <children>
+                  <ImageView fx:id="sensorImgVw" fitHeight="100.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" scaleZ="0.5">
+                     <image>
+                        <Image url="@../../../../Desktop/sensor.png" />
+                     </image>
+                     <VBox.margin>
+                        <Insets bottom="-20.0" left="-10.0" />
+                     </VBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="straightImgVw" fitHeight="100.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true" scaleX="0.5" scaleY="0.5" scaleZ="0.5">
+                     <image>
+                        <Image url="@../../../../Desktop/straight.png" />
+                     </image>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="switchLeftVw" fitHeight="100.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true" rotate="90.0" scaleX="0.75" scaleY="0.75" scaleZ="0.5">
+                     <VBox.margin>
+                        <Insets left="-10.0" top="5.0" />
+                     </VBox.margin>
+                     <image>
+                        <Image url="@../../../../Desktop/switchLeft.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fx:id="switchRightVw" fitHeight="100.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true" rotate="90.0">
+                     <image>
+                        <Image url="@../../../../Desktop/switchRight.png" />
+                     </image>
+                     <VBox.margin>
+                        <Insets top="30.0" />
+                     </VBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="curveLeftVw" fitHeight="100.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../Desktop/curveLeft.png" />
+                     </image>
+                     <VBox.margin>
+                        <Insets bottom="20.0" left="10.0" right="20.0" top="40.0" />
+                     </VBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="curveRightVw" fitHeight="100.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../Desktop/curveRight.png" />
+                     </image>
+                     <VBox.margin>
+                        <Insets bottom="20.0" left="10.0" top="20.0" />
+                     </VBox.margin>
+                  </ImageView>
+               </children>
+            </VBox>
+            <Button fx:id="removeButton" layoutX="284.0" layoutY="37.0" mnemonicParsing="false" onAction="#remove" text="Remove" textFill="#f0ecec" AnchorPane.rightAnchor="556.8">
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Button>
+            <Button fx:id="removeAllButton" layoutX="394.0" layoutY="37.0" mnemonicParsing="false" onAction="#removeAll" text="Remove All Tracks" textFill="#f5f4f4" AnchorPane.rightAnchor="393.2">
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Button>
+            <Button id="finish" fx:id="finishButton" layoutX="839.0" layoutY="37.0" mnemonicParsing="false" onAction="#nextPane" text="Finish" textFill="#fdfdfd">
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Button>
+            <Button fx:id="trainWaypointsButton" layoutX="629.0" layoutY="37.0" mnemonicParsing="false" onAction="#trainWaypoints" text="Train Waypoints" textFill="#fdfdfd">
+               <effect>
+                  <DropShadow />
+               </effect>
+            </Button>
+         </children>
+      </AnchorPane>
+  </children>
+</StackPane>

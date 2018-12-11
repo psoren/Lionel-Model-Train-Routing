@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" fx:controller="application.View22Controller" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button fx:id="trackLayoutScreenButton" layoutX="408.0" layoutY="40.0" mnemonicParsing="false" text="Track Layout" />
+      <Button fx:id="addTrainButton" layoutX="728.0" layoutY="123.0" mnemonicParsing="false" text="Add Train" />
+      <ScrollPane fx:id="trainWaypointsScrollPane" layoutX="662.0" layoutY="169.0" prefHeight="200.0" prefWidth="200.0">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <VBox fx:id="trainRadioButtonsBox" layoutX="50.0" prefHeight="200.0" prefWidth="100.0" />
+               </children>
+            </AnchorPane>
+        </content>
+      </ScrollPane>
+      <Pane fx:id="waypointArea" layoutX="82.0" layoutY="123.0" prefHeight="414.0" prefWidth="545.0" />
+   </children>
+</AnchorPane>

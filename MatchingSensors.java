@@ -1,5 +1,6 @@
 //Written by Parker Sorenson
 //CS440 Fall 2018
+package application;
 
 import java.util.*;
 import javafx.beans.value.*;
@@ -8,6 +9,7 @@ import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane.*;
 import javafx.scene.layout.*;
+import application.TrainsGUI;
 
 public class MatchingSensors{
 
