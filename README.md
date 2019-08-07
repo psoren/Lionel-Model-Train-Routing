@@ -1,6 +1,6 @@
 # Lionel Model Train Routing
 
-For our Senior capstone project, we were asked to create a program that would allow users to control their Lionel model trains.  We created a Java program using JavaFX for the user interface to solve this problem.  We had to interface with the Lionel Wifi Module, which required us to continually ping the Wifi Module as well as interpret which hex codes to send in order to control the trains.
+For our senior capstone project, we were asked to create a program that would allow users to control their Lionel model trains.  We created a Java program using JavaFX for the user interface to solve this problem.  We had to interface with the Lionel Wifi Module, which required us to continually ping the Wifi Module as well as interpret which hex codes to send in order to control the trains.
 
 ## Track Layout
 
